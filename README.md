@@ -1,72 +1,259 @@
-# ASHACONNECT / AWAMS Advanced UI
+# ASHACONNECT
 
-Advanced full-stack AWAMS starter for ASHA Workflow Automation and Management System.
+## ASHA Workflow Automation and Management System
 
-## What changed
+ASHACONNECT is a full-stack web-based healthcare workflow automation platform designed to support ASHA workers in managing beneficiaries, clinical records, appointments, immunization schedules, pregnancy records, community events, alerts, and monthly reports.
 
-- Premium React UI with command-center dashboard
-- Dashboard summary based on beneficiaries, pregnancies, immunization, appointments, events, notices, monthly reports, and SOS
-- UML-aligned module section: Access Control, Beneficiary Services, Clinical Records, Outreach & Safety
-- Architecture layer cards: ASHA UI, Backend API, relational database, notification gateway, emergency services
-- Better data seed with realistic records and dashboard alerts
-- Fixed backend bcrypt issue by pinning bcrypt==4.0.1
-- Node 18 compatible Vite setup
+The project aims to reduce manual paperwork, improve follow-up tracking, support real-time health monitoring, and provide a centralized dashboard for ASHA workers and PHC-level supervision.
 
-## Backend run
+---
+
+## Project Overview
+
+ASHA workers play a critical role in India’s rural healthcare system. However, their daily workflow often depends on manual registers, repeated data entry, delayed reporting, and informal communication methods.
+
+ASHACONNECT solves this problem by digitizing core ASHA workflows through a unified platform that includes:
+
+* Beneficiary registration and tracking
+* Pregnancy record management
+* Immunization scheduling
+* Appointment management
+* Health event organization
+* Notice and reminder system
+* Monthly report generation
+* Emergency SOS alert support
+* Dashboard-based monitoring
+
+---
+
+## Key Features
+
+### Authentication
+
+* Secure ASHA worker login
+* JWT-based authentication
+* Protected backend APIs
+
+### Dashboard
+
+* Total beneficiaries
+* Pregnancy records
+* Immunization records
+* Upcoming appointments
+* Events
+* Active alerts
+* High-risk pregnancy indicators
+* Missed immunization tracking
+* Workflow and module overview
+
+### Beneficiary Management
+
+* Add new beneficiaries
+* View beneficiary list
+* Track category-wise beneficiaries such as pregnant women, children, elderly, and general patients
+
+### Clinical Records
+
+* Pregnancy record creation
+* ANC count tracking
+* Hemoglobin, blood pressure, weight, and expected delivery date tracking
+* High-risk pregnancy status support
+
+### Immunization Records
+
+* Vaccine scheduling
+* Dose tracking
+* Missed, scheduled, postponed, and given status management
+
+### Appointment Management
+
+* Schedule appointments
+* Track appointment status
+* Store appointment notes
+
+### Events and Notices
+
+* Create community health events
+* Manage awareness drives, vaccination drives, nutrition camps, and checkup events
+* Send beneficiary notices and reminders
+
+### Monthly Reports
+
+* Generate monthly performance reports
+* Track total patients, pregnancies, immunizations, appointments, and events
+* Support PHC-level reporting workflow
+
+### Emergency SOS
+
+* Trigger emergency SOS alerts
+* Store worker location and alert status
+* Designed for ASHA worker field safety
+
+---
+
+## Tech Stack
+
+### Frontend
+
+* React.js
+* Vite
+* JavaScript
+* CSS
+
+### Backend
+
+* FastAPI
+* Python
+* SQLAlchemy ORM
+* JWT Authentication
+* Passlib password hashing
+
+### Database
+
+* SQLite for local development
+* MySQL-ready structure for production usage
+
+---
+
+## Folder Structure
+
+```bash
+ASHACONNECT-ADVANCED/
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── models.py
+│   │   ├── seed.py
+│   │   ├── security.py
+│   │   ├── db/
+│   │   └── routers/
+│   │
+│   ├── requirements.txt
+│   └── awams.db
+│
+├── frontend/
+│   ├── src/
+│   │   ├── main.jsx
+│   │   └── api.js
+│   │
+│   ├── index.html
+│   └── package.json
+│
+├── README.md
+└── .gitignore
+```
+
+---
+
+## Backend Setup
+
+Open a terminal and run:
 
 ```bash
 cd backend
-rm -rf venv awams.db
+
 python3 -m venv venv
 source venv/bin/activate
+
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+
 python -m app.seed
 python -m uvicorn app.main:app --reload
 ```
 
-Backend docs:
+Backend will run at:
 
-```txt
+```bash
+http://127.0.0.1:8000
+```
+
+FastAPI documentation:
+
+```bash
 http://127.0.0.1:8000/docs
 ```
 
-## Frontend run
+---
 
-Open another terminal:
+## Frontend Setup
+
+Open another terminal and run:
 
 ```bash
 cd frontend
-rm -rf node_modules package-lock.json
+
 npm install
 npm run dev
 ```
 
-Frontend:
+Frontend will run at:
 
-```txt
+```bash
 http://localhost:5173
 ```
 
-## Demo login
+---
 
-```txt
-email: asha@example.com
-password: password123
+## Demo Login
+
+```bash
+Email: asha@example.com
+Password: password123
 ```
 
-## Existing folder update
+---
 
-If you already have ASHACONNECT open, replace these files/folders from this package:
+## API Documentation
 
-- `frontend/src/main.jsx`
-- `frontend/src/styles.css`
-- `frontend/package.json`
-- `backend/app/routers/dashboard.py`
-- `backend/app/seed.py`
-- `backend/requirements.txt`
+Once the backend is running, open:
 
-Then run backend seed again after deleting `awams.db`.
-# ASHACONNECT
-# ASHACONNECT
-# ASHACONNECT
+```bash
+http://127.0.0.1:8000/docs
+```
+
+This page provides automatic API documentation for all backend routes.
+
+---
+
+## Main Modules
+
+The system is divided into the following core modules:
+
+1. Access Control
+2. Dashboard Monitoring
+3. Beneficiary Services
+4. Clinical Records
+5. Pregnancy Tracking
+6. Immunization Tracking
+7. Appointment Scheduling
+8. Event Management
+9. Notice and Reminder System
+10. Monthly Reporting
+11. Emergency SOS
+
+---
+
+## Future Enhancements
+
+* MySQL production database integration
+* Role-based dashboards for PHC admins and supervisors
+* SMS gateway integration
+* Push notification system
+* Offline-first Progressive Web App support
+* AI-based health advisory module
+* Advanced analytics and charts
+* Deployment on cloud platforms
+
+---
+
+## Project Purpose
+
+This project is developed as part of the ASHA Workers Workflow Automation initiative. It focuses on improving rural healthcare workflow management through digital transformation, centralized record keeping, automated reminders, and real-time dashboard-based monitoring.
+
+---
+
+## Author
+
+Developed by Ashish Ranjan and team as part of the ASHACONNECT / AWAMS project.
