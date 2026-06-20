@@ -63,6 +63,7 @@ class BeneficiaryCreate(BaseModel):
     address: Optional[str] = None
     contact_no: Optional[str] = None
     category: str = "general"
+    asha_worker_id: Optional[int] = None
 
 
 class BeneficiaryUpdate(BaseModel):

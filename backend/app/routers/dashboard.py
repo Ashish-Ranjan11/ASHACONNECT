@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.mysql import get_db
-from app.deps import get_current_worker
+from app.deps import get_current_worker, visible_worker_ids, scoped_beneficiary_query
 from app.models import (
     Appointment,
     AshaWorker,
@@ -13,6 +13,7 @@ from app.models import (
     MonthlyReport,
     Notice,
     PregnancyRecord,
+    PrimaryHealthCentre,
     SOSAlert,
 )
 
@@ -25,59 +26,60 @@ def _iso(value):
     return value.isoformat() if hasattr(value, "isoformat") else str(value)
 
 
-def _scope_beneficiaries(db: Session, current: AshaWorker):
-    query = db.query(Beneficiary)
-    if current.role == "asha":
-        query = query.filter(Beneficiary.asha_worker_id == current.worker_id)
-    return query
-
-
 @router.get("/summary")
-def dashboard_summary(db: Session = Depends(get_db), current: AshaWorker = Depends(get_current_worker)):
+def dashboard_summary(
+    db: Session = Depends(get_db),
+    current: AshaWorker = Depends(get_current_worker),
+):
     today = date.today()
     next_30 = today + timedelta(days=30)
 
-    b_query = _scope_beneficiaries(db, current)
-    beneficiaries = b_query.all()
+    worker_ids = visible_worker_ids(db, current)
+
+    beneficiaries = scoped_beneficiary_query(db, current).all()
     beneficiary_ids = [b.beneficiary_id for b in beneficiaries]
     beneficiary_map = {b.beneficiary_id: b.full_name for b in beneficiaries}
 
-    def in_scope(query, model_field):
-        if current.role == "asha":
-            return query.filter(model_field.in_(beneficiary_ids or [0]))
-        return query
+    if not beneficiary_ids:
+        beneficiary_ids = [0]
 
-    pregnancies = in_scope(db.query(PregnancyRecord), PregnancyRecord.beneficiary_id)
-    immunizations = in_scope(db.query(ImmunizationRecord), ImmunizationRecord.beneficiary_id)
-    appointments = in_scope(db.query(Appointment), Appointment.beneficiary_id)
-    notices = in_scope(db.query(Notice), Notice.beneficiary_id)
-
-    events = db.query(Event)
-    sos = db.query(SOSAlert)
-    reports = db.query(MonthlyReport)
-    if current.role == "asha":
-        events = events.filter(Event.organizer_id == current.worker_id)
-        sos = sos.filter(SOSAlert.worker_id == current.worker_id)
-        reports = reports.filter(MonthlyReport.generated_by == current.worker_id)
+    pregnancies = db.query(PregnancyRecord).filter(PregnancyRecord.beneficiary_id.in_(beneficiary_ids))
+    immunizations = db.query(ImmunizationRecord).filter(ImmunizationRecord.beneficiary_id.in_(beneficiary_ids))
+    appointments = db.query(Appointment).filter(Appointment.beneficiary_id.in_(beneficiary_ids))
+    notices = db.query(Notice).filter(Notice.beneficiary_id.in_(beneficiary_ids))
+    events = db.query(Event).filter(Event.organizer_id.in_(worker_ids))
+    sos = db.query(SOSAlert).filter(SOSAlert.worker_id.in_(worker_ids))
+    reports = db.query(MonthlyReport).filter(MonthlyReport.generated_by.in_(worker_ids))
 
     upcoming_appointments = appointments.filter(
         Appointment.appointment_date >= today,
         Appointment.status == "scheduled",
     ).count()
+
     overdue_appointments = appointments.filter(
         Appointment.appointment_date < today,
         Appointment.status == "scheduled",
     ).count()
+
     missed_immunizations = immunizations.filter(ImmunizationRecord.status == "missed").count()
+
     due_immunizations = immunizations.filter(
         ImmunizationRecord.status == "scheduled",
         ImmunizationRecord.scheduled_date <= next_30,
     ).count()
+
     high_risk = pregnancies.filter(PregnancyRecord.status == "high_risk").count()
-    low_hb = pregnancies.filter(PregnancyRecord.hemoglobin_level != None, PregnancyRecord.hemoglobin_level < 11).count()  # noqa: E711
+
+    low_hb = pregnancies.filter(
+        PregnancyRecord.hemoglobin_level != None,
+        PregnancyRecord.hemoglobin_level < 11,
+    ).count()
+
     active_sos = sos.filter(SOSAlert.status == "active").count()
 
     cards = {
+        "asha_workers": len(worker_ids),
+        "phcs": db.query(PrimaryHealthCentre).count() if current.role == "supervisor" else 1,
         "beneficiaries": len(beneficiaries),
         "pregnancies": pregnancies.count(),
         "immunizations": immunizations.count(),
@@ -88,6 +90,7 @@ def dashboard_summary(db: Session = Depends(get_db), current: AshaWorker = Depen
         "monthly_reports": reports.count(),
         "high_risk_pregnancies": high_risk,
         "missed_immunizations": missed_immunizations,
+        "due_immunizations": due_immunizations,
         "active_sos_alerts": active_sos,
     }
 
@@ -98,29 +101,74 @@ def dashboard_summary(db: Session = Depends(get_db), current: AshaWorker = Depen
         "general": sum(1 for b in beneficiaries if b.category == "general"),
     }
 
-    upcoming_appts = appointments.filter(Appointment.appointment_date >= today).order_by(Appointment.appointment_date.asc()).limit(5).all()
-    upcoming_imms = immunizations.filter(ImmunizationRecord.scheduled_date >= today).order_by(ImmunizationRecord.scheduled_date.asc()).limit(5).all()
-    upcoming_events = events.filter(Event.event_date >= today).order_by(Event.event_date.asc()).limit(5).all()
+    upcoming_appts = appointments.filter(
+        Appointment.appointment_date >= today
+    ).order_by(Appointment.appointment_date.asc()).limit(6).all()
+
+    upcoming_imms = immunizations.filter(
+        ImmunizationRecord.scheduled_date >= today
+    ).order_by(ImmunizationRecord.scheduled_date.asc()).limit(6).all()
+
+    upcoming_events = events.filter(
+        Event.event_date >= today
+    ).order_by(Event.event_date.asc()).limit(6).all()
 
     alerts = []
+
     if active_sos:
-        alerts.append({"level": "critical", "title": "Active SOS alert", "message": f"{active_sos} emergency alert is active. Verify location and escalate immediately."})
+        alerts.append({
+            "level": "critical",
+            "title": "Active SOS alert",
+            "message": f"{active_sos} emergency alert is active. Verify location and escalate immediately.",
+        })
+
     if high_risk:
-        alerts.append({"level": "high", "title": "High-risk pregnancy tracking", "message": f"{high_risk} high-risk pregnancy record needs close ANC monitoring."})
+        alerts.append({
+            "level": "high",
+            "title": "High-risk pregnancy tracking",
+            "message": f"{high_risk} high-risk pregnancy record needs close ANC monitoring.",
+        })
+
     if low_hb:
-        alerts.append({"level": "medium", "title": "Low hemoglobin cases", "message": f"{low_hb} pregnancy record has Hb below 11 g/dL. Plan follow-up and IFA counselling."})
+        alerts.append({
+            "level": "medium",
+            "title": "Low hemoglobin cases",
+            "message": f"{low_hb} pregnancy record has Hb below 11 g/dL. Plan IFA counselling and follow-up.",
+        })
+
     if missed_immunizations:
-        alerts.append({"level": "medium", "title": "Missed immunizations", "message": f"{missed_immunizations} immunization entries are marked missed. Send reminders and schedule revisit."})
+        alerts.append({
+            "level": "medium",
+            "title": "Missed immunizations",
+            "message": f"{missed_immunizations} immunization record is marked missed. Send reminder and reschedule.",
+        })
+
     if overdue_appointments:
-        alerts.append({"level": "medium", "title": "Overdue scheduled appointments", "message": f"{overdue_appointments} appointment(s) crossed due date but are still scheduled."})
+        alerts.append({
+            "level": "medium",
+            "title": "Overdue appointments",
+            "message": f"{overdue_appointments} scheduled appointment crossed due date.",
+        })
+
     if not alerts:
-        alerts.append({"level": "normal", "title": "Workflow stable", "message": "No critical alerts. Continue planned beneficiary follow-ups."})
+        alerts.append({
+            "level": "normal",
+            "title": "Workflow stable",
+            "message": "No critical alerts. Continue planned beneficiary follow-ups.",
+        })
+
+    role_title = {
+        "asha": "ASHA Worker Dashboard",
+        "phc_admin": "PHC Admin Dashboard",
+        "supervisor": "Supervisor Dashboard",
+    }.get(current.role, "Dashboard")
 
     return {
         "worker": {
             "id": current.worker_id,
             "name": current.name,
             "role": current.role,
+            "role_title": role_title,
             "village": current.village,
             "phone_no": current.phone_no,
             "email": current.email,
@@ -137,11 +185,36 @@ def dashboard_summary(db: Session = Depends(get_db), current: AshaWorker = Depen
             "active_sos_alerts": active_sos,
         },
         "care_pipeline": [
-            {"label": "Register beneficiary", "value": len(beneficiaries), "target": max(len(beneficiaries), 10), "status": "live"},
-            {"label": "ANC / pregnancy monitoring", "value": pregnancies.count(), "target": max(pregnancies.count(), 6), "status": "clinical"},
-            {"label": "Immunization tracking", "value": immunizations.count(), "target": max(immunizations.count(), 8), "status": "child health"},
-            {"label": "Appointments & follow-ups", "value": upcoming_appointments, "target": max(upcoming_appointments, 5), "status": "scheduled"},
-            {"label": "Reports submitted", "value": reports.filter(MonthlyReport.status.in_(["submitted", "approved"])).count(), "target": max(reports.count(), 1), "status": "PHC review"},
+            {
+                "label": "Register beneficiary",
+                "value": len(beneficiaries),
+                "target": max(len(beneficiaries), 10),
+                "status": "live",
+            },
+            {
+                "label": "ANC / pregnancy monitoring",
+                "value": pregnancies.count(),
+                "target": max(pregnancies.count(), 6),
+                "status": "clinical",
+            },
+            {
+                "label": "Immunization tracking",
+                "value": immunizations.count(),
+                "target": max(immunizations.count(), 8),
+                "status": "child health",
+            },
+            {
+                "label": "Appointments & follow-ups",
+                "value": upcoming_appointments,
+                "target": max(upcoming_appointments, 5),
+                "status": "scheduled",
+            },
+            {
+                "label": "Reports submitted",
+                "value": reports.filter(MonthlyReport.status.in_(["submitted", "approved"])).count(),
+                "target": max(reports.count(), 1),
+                "status": "PHC review",
+            },
         ],
         "upcoming": {
             "appointments": [
@@ -182,16 +255,16 @@ def dashboard_summary(db: Session = Depends(get_db), current: AshaWorker = Depen
         },
         "alerts": alerts,
         "uml_modules": [
-            {"module": "Access Control", "items": ["Auth login/logout", "Credential recovery", "Role-based dashboard"]},
-            {"module": "Beneficiary Services", "items": ["Register beneficiary", "Update health profile", "Manage appointments"]},
-            {"module": "Clinical Records", "items": ["General records", "Pregnancy entry", "Immunization entry"]},
-            {"module": "Outreach & Safety", "items": ["Organize event", "Send notifications", "Submit reports", "Trigger SOS"]},
+            {"module": "Access Control", "items": ["Multi-role login", "JWT sessions", "Role-based dashboard"]},
+            {"module": "Beneficiary Services", "items": ["Register beneficiary", "Update profile", "ASHA mapping"]},
+            {"module": "Clinical Records", "items": ["Pregnancy records", "Immunization records", "Risk flags"]},
+            {"module": "Outreach & Safety", "items": ["Events", "Notices", "Monthly reports", "SOS"]},
         ],
         "architecture_layers": [
-            {"name": "Asha Worker UI", "detail": "Mobile-first React dashboard for field data entry and action tracking"},
-            {"name": "Backend API", "detail": "FastAPI services for auth, CRUD, reports, alerts, and SOS"},
-            {"name": "MySQL / SQLite DB", "detail": "Relational persistence for PHC, ASHA, beneficiaries, records, events, notices"},
-            {"name": "Notification Gateway", "detail": "SMS / push reminder layer for beneficiaries and emergency contacts"},
-            {"name": "Emergency Services", "detail": "External escalation path for SOS with location and worker identity"},
+            {"name": "React UI", "detail": "Role-aware dashboard for ASHA, PHC Admin, and Supervisor"},
+            {"name": "FastAPI Backend", "detail": "Authentication, CRUD, reporting, alerts and role-based data access"},
+            {"name": "SQLite / MySQL DB", "detail": "Relational storage for PHC, workers, beneficiaries and clinical records"},
+            {"name": "Notification Gateway", "detail": "SMS / push reminder simulation for beneficiaries"},
+            {"name": "Emergency Services", "detail": "SOS escalation with worker identity and location"},
         ],
     }
