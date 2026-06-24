@@ -1,5 +1,8 @@
 import React from "react";
 import "./login-page.css";
+
+const imagePath = (fileName) => `${import.meta.env.BASE_URL}images/${fileName}`;
+
 const demoAccounts = [
   {
     label: "ASHA Worker",
@@ -63,17 +66,17 @@ const ashaFacts = [
   {
     title: "Home Visit Support",
     text: "ASHA workers connect households with maternal, child and preventive healthcare services.",
-    image: "/images/asha-home-visit.jpg",
+    image: imagePath("asha-home-visit.jpg"),
   },
   {
     title: "Mother & Child Care",
     text: "They help monitor pregnancy, newborn care, nutrition and immunization follow-ups.",
-    image: "/images/mother-child-care.jpg",
+    image: imagePath("mother-child-care.jpg"),
   },
   {
     title: "Community Outreach",
     text: "They coordinate awareness sessions, referrals, reminders and village-level health drives.",
-    image: "/images/community-outreach.jpg",
+    image: imagePath("community-outreach.jpg"),
   },
 ];
 
@@ -101,9 +104,9 @@ export default function LoginPage({
               <p className="cc-mini-label">ASHA CONNECT</p>
               <h1>ASHA Workers Workflow Automation and Database Management</h1>
               <p className="cc-subtitle">
-                A modern digital workspace built for ASHA workers, PHC administrators and
-                supervisors to manage beneficiary care, clinical records, reminders, reports and
-                emergency workflows.
+                A modern digital workspace built for ASHA workers, PHC administrators
+                and supervisors to manage beneficiary care, clinical records, reminders,
+                reports and emergency workflows.
               </p>
             </div>
           </div>
@@ -115,9 +118,9 @@ export default function LoginPage({
               <h2>One intelligent platform for frontline healthcare workflows.</h2>
 
               <p>
-                Manage beneficiaries, pregnancy records, immunization schedules, appointments,
-                events, notices, monthly reports and SOS alerts through a structured health
-                operations dashboard.
+                Manage beneficiaries, pregnancy records, immunization schedules,
+                appointments, events, notices, monthly reports and SOS alerts through a
+                structured health operations dashboard.
               </p>
 
               <div className="cc-stat-row">
@@ -160,9 +163,9 @@ export default function LoginPage({
                 <h2>I do what I do to make sure my community is safe and healthy.</h2>
 
                 <p>
-                  ASHA workers are the bridge between rural households and public healthcare
-                  services. ASHA CONNECT supports that work with digital records, automated
-                  reminders, reports, and emergency assistance.
+                  ASHA workers are the bridge between rural households and public
+                  healthcare services. ASHA CONNECT supports that work with digital
+                  records, automated reminders, reports, and emergency assistance.
                 </p>
 
                 <div className="cc-community-person">
@@ -173,7 +176,7 @@ export default function LoginPage({
 
               <div className="cc-community-image-wrap">
                 <img
-                  src="/images/asha-community-voice.jpg"
+                  src={imagePath("asha-community-voice.jpg")}
                   alt="ASHA worker community voice"
                   onError={(event) => {
                     event.currentTarget.style.display = "none";
@@ -234,10 +237,10 @@ export default function LoginPage({
 
             <div className="cc-auth-heading">
               <p className="cc-mini-label dark">WELCOME BACK</p>
-              <h2>Sign in to ASHA CCONNECT</h2>
+              <h2>Sign in to ASHA CONNECT</h2>
               <p>
-                Access your personalized workspace for beneficiary care, clinical tracking,
-                workflow automation, reporting and emergency safety support.
+                Access your personalized workspace for beneficiary care, clinical
+                tracking, workflow automation, reporting and emergency safety support.
               </p>
             </div>
 
