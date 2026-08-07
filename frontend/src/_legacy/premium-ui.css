@@ -1,0 +1,58 @@
+:root {
+  --premium-navy: #071326;
+  --premium-teal: #0f9f7a;
+  --premium-surface: rgba(255, 255, 255, 0.92);
+  --premium-border: #e6edf5;
+}
+
+body {
+  background:
+    radial-gradient(circle at top right, rgba(15, 159, 122, 0.15), transparent 32%),
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.10), transparent 28%),
+    #eef5f3 !important;
+}
+
+button {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+aside,
+.sidebar,
+.sideBar,
+.appSidebar {
+  box-shadow: 12px 0 40px rgba(7, 19, 38, 0.08);
+}
+
+.panel,
+.dataCard,
+.card,
+form,
+.dashboardCard {
+  border: 1px solid var(--premium-border) !important;
+  box-shadow: 0 18px 46px rgba(15, 23, 42, 0.06) !important;
+}
+
+.primaryButton,
+button[type="submit"] {
+  background: linear-gradient(135deg, #0f766e, #0f9f7a) !important;
+  font-weight: 900 !important;
+}
+
+input,
+select,
+textarea {
+  border-color: #dbeafe !important;
+}
+
+table th {
+  background: #eef4f8 !important;
+  color: #334155 !important;
+}
+
+table td {
+  color: #2f3b52 !important;
+}

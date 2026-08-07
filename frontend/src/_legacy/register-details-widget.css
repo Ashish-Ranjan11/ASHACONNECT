@@ -1,0 +1,177 @@
+.registerFloatButton {
+  position: fixed;
+  right: 24px;
+  bottom: 272px;
+  z-index: 9998;
+  border: 0;
+  border-radius: 999px;
+  padding: 15px 22px;
+  background: linear-gradient(135deg, #9333ea, #f97316);
+  color: white;
+  font-weight: 950;
+  font-size: 0.95rem;
+  box-shadow: 0 22px 55px rgba(147, 51, 234, 0.34);
+  cursor: pointer;
+}
+
+.registerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(2, 6, 23, 0.62);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  padding: 26px;
+}
+
+.registerPanel {
+  width: min(1120px, 96vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(147, 51, 234, 0.12), transparent 34%),
+    radial-gradient(circle at 100% 0%, rgba(249, 115, 22, 0.10), transparent 34%),
+    #ffffff;
+  border-radius: 34px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 42px 100px rgba(2, 6, 23, 0.34);
+  padding: 28px;
+}
+
+.registerTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.registerTop p {
+  margin: 0 0 8px;
+  color: #9333ea;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.registerTop h2 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3.2rem);
+  letter-spacing: -0.06em;
+  color: #0f172a;
+}
+
+.registerTop span {
+  display: inline-block;
+  margin-top: 8px;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.registerClose {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  background: #f1f5f9;
+  color: #0f172a;
+  font-size: 2rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.registerMessage {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+  border-radius: 18px;
+  padding: 14px 16px;
+  font-weight: 900;
+  margin-bottom: 16px;
+}
+
+.registerForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.registerForm label {
+  display: grid;
+  gap: 8px;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.registerForm input,
+.registerForm select {
+  width: 100%;
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  padding: 15px 16px;
+  color: #0f172a;
+  font-weight: 800;
+  outline: none;
+  background: white;
+}
+
+.registerSaveButton {
+  grid-column: 1 / -1;
+  border: 0;
+  border-radius: 20px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #9333ea, #f97316);
+  color: white;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.registerPreview {
+  margin-top: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 26px;
+  padding: 22px;
+  background: #f8fafc;
+}
+
+.registerPreview h3 {
+  margin: 0 0 14px;
+  color: #0f172a;
+}
+
+.registerPreviewGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.registerPreviewGrid div {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.registerPreviewGrid span {
+  display: block;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.registerPreviewGrid b {
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+  .registerForm,
+  .registerPreviewGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,388 @@
+/* =========================================================
+   ASHA CONNECT Luxury Healthcare UI Layer
+   Adds expensive SaaS-style motion, hover, glow and polish
+========================================================= */
+
+:root {
+  --lux-bg: #eef7f5;
+  --lux-navy: #061527;
+  --lux-card: rgba(255, 255, 255, 0.92);
+  --lux-line: rgba(210, 224, 232, 0.88);
+  --lux-text: #0d1b2f;
+  --lux-muted: #627089;
+  --lux-teal: #0f9f7a;
+  --lux-green: #16a34a;
+  --lux-blue: #2563eb;
+  --lux-red: #dc2626;
+  --lux-shadow: 0 22px 60px rgba(15, 23, 42, 0.075);
+  --lux-shadow-strong: 0 32px 90px rgba(15, 23, 42, 0.13);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at 82% 0%, rgba(15, 159, 122, 0.18), transparent 30%),
+    radial-gradient(circle at 15% 0%, rgba(37, 99, 235, 0.10), transparent 28%),
+    linear-gradient(135deg, #edf7f5 0%, #f8fbfd 48%, #edf8f4 100%) !important;
+  color: var(--lux-text);
+}
+
+/* Global motion */
+* {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 220ms ease,
+    transform 220ms ease,
+    color 180ms ease,
+    opacity 180ms ease;
+}
+
+/* Main content entrance */
+main,
+.content,
+.dashboardContent,
+[class*="content"],
+[class*="Content"] {
+  animation: luxFadeUp 520ms ease both;
+}
+
+@keyframes luxFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Premium hero */
+.hero,
+.pageHero,
+.dashboardHero,
+.headerHero,
+[class*="hero"],
+[class*="Hero"] {
+  position: relative;
+  overflow: hidden;
+  border-radius: 34px !important;
+  border: 1px solid rgba(226, 234, 242, 0.9) !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.96), rgba(236,253,245,0.90)),
+    #ffffff !important;
+  box-shadow: var(--lux-shadow) !important;
+}
+
+.hero::before,
+.pageHero::before,
+.dashboardHero::before,
+.headerHero::before,
+[class*="hero"]::before,
+[class*="Hero"]::before {
+  content: "";
+  position: absolute;
+  right: -90px;
+  top: -120px;
+  width: 300px;
+  height: 300px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(15,159,122,0.20), transparent 67%);
+  animation: luxGlowFloat 5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes luxGlowFloat {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-24px, 20px, 0) scale(1.08);
+  }
+}
+
+/* Sidebar premium hover */
+aside,
+.sidebar,
+[class*="sidebar"],
+[class*="Sidebar"] {
+  background:
+    radial-gradient(circle at 20% 8%, rgba(20, 184, 166, 0.28), transparent 24%),
+    linear-gradient(180deg, #061527 0%, #062c24 52%, #061527 100%) !important;
+  box-shadow: 18px 0 60px rgba(6, 21, 39, 0.18) !important;
+}
+
+aside button,
+.sidebar button,
+[class*="sidebar"] button,
+[class*="Sidebar"] button {
+  border-radius: 16px !important;
+}
+
+aside button:hover,
+.sidebar button:hover,
+[class*="sidebar"] button:hover,
+[class*="Sidebar"] button:hover {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Cards feel premium */
+.panel,
+.dataCard,
+.card,
+.dashboardCard,
+.statCard,
+.metricCard,
+[class*="panel"],
+[class*="Panel"],
+[class*="card"],
+[class*="Card"] {
+  background: var(--lux-card) !important;
+  border: 1px solid var(--lux-line) !important;
+  border-radius: 28px !important;
+  box-shadow: var(--lux-shadow) !important;
+  backdrop-filter: blur(18px);
+}
+
+.panel:hover,
+.dataCard:hover,
+.card:hover,
+.dashboardCard:hover,
+.statCard:hover,
+.metricCard:hover,
+[class*="card"]:hover,
+[class*="Card"]:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--lux-shadow-strong) !important;
+  border-color: rgba(15, 159, 122, 0.32) !important;
+}
+
+/* Staggered dashboard card entrance */
+.panel,
+.dataCard,
+.card,
+.dashboardCard,
+.statCard,
+.metricCard {
+  animation: luxCardIn 520ms ease both;
+}
+
+.panel:nth-child(2),
+.dataCard:nth-child(2),
+.card:nth-child(2),
+.dashboardCard:nth-child(2),
+.statCard:nth-child(2),
+.metricCard:nth-child(2) {
+  animation-delay: 70ms;
+}
+
+.panel:nth-child(3),
+.dataCard:nth-child(3),
+.card:nth-child(3),
+.dashboardCard:nth-child(3),
+.statCard:nth-child(3),
+.metricCard:nth-child(3) {
+  animation-delay: 120ms;
+}
+
+@keyframes luxCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Premium typography */
+h1,
+h2,
+h3 {
+  color: var(--lux-navy) !important;
+  letter-spacing: -0.06em;
+}
+
+h1 {
+  letter-spacing: -0.085em !important;
+}
+
+p {
+  color: var(--lux-muted);
+}
+
+/* Better inputs */
+input,
+select,
+textarea {
+  border: 1px solid #dbe7f0 !important;
+  border-radius: 17px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--lux-navy) !important;
+  font-weight: 760 !important;
+  min-height: 54px;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: rgba(15, 159, 122, 0.45) !important;
+  box-shadow: 0 10px 26px rgba(15, 159, 122, 0.08);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: rgba(15, 159, 122, 0.78) !important;
+  box-shadow:
+    0 0 0 5px rgba(15, 159, 122, 0.11),
+    0 16px 32px rgba(15, 159, 122, 0.10) !important;
+}
+
+/* Premium buttons */
+button,
+.primaryButton,
+.btn,
+[class*="Button"],
+[class*="button"] {
+  font-weight: 900 !important;
+}
+
+button:hover,
+.primaryButton:hover,
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+button:active,
+.primaryButton:active,
+.btn:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.primaryButton,
+button[type="submit"] {
+  background: linear-gradient(135deg, #0f766e, #0f9f7a) !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 16px 34px rgba(15, 159, 122, 0.22) !important;
+}
+
+.primaryButton:hover,
+button[type="submit"]:hover {
+  box-shadow: 0 22px 48px rgba(15, 159, 122, 0.30) !important;
+}
+
+/* Tables */
+.tableWrap,
+[class*="tableWrap"],
+[class*="TableWrap"] {
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid var(--lux-line);
+  box-shadow: var(--lux-shadow);
+}
+
+table {
+  border-collapse: collapse;
+  background: white;
+}
+
+table th {
+  background: #eef5f7 !important;
+  color: #334155 !important;
+  font-size: 0.77rem !important;
+  letter-spacing: 0.09em !important;
+  text-transform: uppercase !important;
+  font-weight: 950 !important;
+  padding: 16px !important;
+}
+
+table td {
+  padding: 16px !important;
+  border-bottom: 1px solid rgba(226, 234, 242, 0.85) !important;
+  color: #2d3a4f !important;
+  font-weight: 740 !important;
+}
+
+table tr:hover td {
+  background: #f7fbfa !important;
+}
+
+/* Progress bars */
+.progress,
+.progressBar,
+[class*="progress"],
+[class*="Progress"] {
+  overflow: hidden;
+  border-radius: 999px !important;
+}
+
+.progress > div,
+.progressBar > div,
+[class*="progress"] > div,
+[class*="Progress"] > div {
+  background: linear-gradient(90deg, #0f766e, #22c55e) !important;
+  position: relative;
+}
+
+.progress > div::after,
+.progressBar > div::after,
+[class*="progress"] > div::after,
+[class*="Progress"] > div::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.42), transparent);
+  animation: luxShimmer 1.8s infinite;
+}
+
+@keyframes luxShimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Hide old random floating widgets if present */
+.tasksFloatButton,
+.monitorFloatButton,
+.portfolioFloatButton,
+.familyFloatButton,
+.registerFloatButton {
+  display: none !important;
+}
+
+/* Keep only Operations Hub */
+.oh-launcher {
+  display: inline-flex !important;
+}
+
+/* Logo fix: reduce student-looking mark */
+aside [class*="logo"],
+aside [class*="Logo"],
+aside [class*="avatar"],
+aside [class*="Avatar"] {
+  border-radius: 22px !important;
+  background: linear-gradient(135deg, #0f766e, #22c55e) !important;
+  box-shadow: 0 22px 46px rgba(15, 159, 122, 0.30) !important;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

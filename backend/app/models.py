@@ -68,6 +68,16 @@ class Beneficiary(Base):
     event_participants = relationship("EventParticipant", back_populates="beneficiary")
 
 
+    # ASHA register extended demographic fields
+    education = Column(String(100), default="")
+    occupation_type = Column(String(50), default="")
+    occupation_detail = Column(String(150), default="")
+    marital_status = Column(String(50), default="")
+    religion = Column(String(80), default="")
+    family_baby_count = Column(Integer, default=0)
+    last_baby_birth_date = Column(Date, nullable=True)
+
+
 class Record(Base):
     __tablename__ = "records"
 

@@ -1,21 +1,25 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
-import "./dashboard.css";
+import "./app-theme.css";
 import { api } from "./api";
 import LoginPage from "./components/LoginPage";
+
+import "./operations-hub";
+import "./role-workspace";
+import "./care-automation";
 
 const todayISO = new Date().toISOString().slice(0, 10);
 
 const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: "📊" },
-  { id: "beneficiaries", label: "Beneficiaries", icon: "👥" },
-  { id: "pregnancy", label: "Pregnancy", icon: "🤰" },
-  { id: "immunization", label: "Immunization", icon: "💉" },
-  { id: "appointments", label: "Appointments", icon: "📅" },
-  { id: "events", label: "Events", icon: "🏥" },
-  { id: "notices", label: "Notices", icon: "📢" },
-  { id: "reports", label: "Reports", icon: "📄" },
-  { id: "sos", label: "SOS", icon: "🚨" },
+  { id: "dashboard", label: "Dashboard", icon: "DB", desc: "Live overview of beneficiaries, risk and workflow progress." },
+  { id: "beneficiaries", label: "Beneficiaries", icon: "BN", desc: "Add and manage village-level beneficiary records." },
+  { id: "pregnancy", label: "Pregnancy", icon: "MH", desc: "ANC follow-ups, hemoglobin, BP, EDD and risk status." },
+  { id: "immunization", label: "Immunization", icon: "IM", desc: "Vaccine due dates, given dates and missed doses." },
+  { id: "appointments", label: "Appointments", icon: "AP", desc: "Schedule beneficiary visits and PHC follow-ups." },
+  { id: "events", label: "Events", icon: "EV", desc: "Plan awareness sessions and community health camps." },
+  { id: "notices", label: "Notices", icon: "NT", desc: "Send and manage community or PHC-level notices." },
+  { id: "reports", label: "Reports", icon: "📄", desc: "Generate monthly reports and export PDF summaries." },
+  { id: "sos", label: "SOS", icon: "SOS", desc: "Trigger emergency alerts during field work.", danger: true },
 ];
 
 const defaultSummary = {
@@ -89,6 +93,7 @@ function App() {
   const [error, setError] = useState("");
 
   const [activePage, setActivePage] = useState("dashboard");
+  const [showLauncher, setShowLauncher] = useState(true);
   const [message, setMessage] = useState("");
 
   const [summary, setSummary] = useState(defaultSummary);
@@ -104,7 +109,7 @@ function App() {
   const [beneficiaryForm, setBeneficiaryForm] = useState({
     name: "",
     age: "",
-    gender: "female",
+    gender: "Female",
     phone: "",
     village: "",
     category: "general",
@@ -268,6 +273,7 @@ function App() {
     setToken("");
     setCurrentUser(null);
     setActivePage("dashboard");
+    setShowLauncher(true);
     setMessage("");
   }
 
@@ -386,13 +392,68 @@ function App() {
     );
   }
 
+  if (showLauncher) {
+    return (
+      <div className="launcherShell">
+        <div className="launcherTop">
+          <div className="launcherBrand">
+            <div className="launcherMark">A</div>
+            <div>
+              <h1>ASHA CONNECT</h1>
+              <p>Healthcare Operations Suite</p>
+            </div>
+          </div>
+
+          <div className="launcherProfile">
+            <div className="launcherProfileText">
+              <strong>{workerName}</strong>
+              <span>{workerRole.replace(/_/g, " ")}</span>
+            </div>
+            <div className="launcherAvatar">
+              {workerName.slice(0, 1).toUpperCase()}
+            </div>
+            <button className="launcherLogout" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <div className="launcherHeading">
+          <h2>What would you like to open?</h2>
+          <p>
+            Pick a workspace below. Each one opens with its own dashboard,
+            forms and records — you can come back here any time.
+          </p>
+        </div>
+
+        <div className="launcherGrid">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              className={`launcherCard ${item.danger ? "danger" : ""}`}
+              onClick={() => {
+                setActivePage(item.id);
+                setShowLauncher(false);
+              }}
+            >
+              <div className="launcherCardIcon">{item.icon}</div>
+              <h3>{item.label}</h3>
+              <p>{item.desc}</p>
+              <span className="launcherCardArrow">Open →</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   function renderDashboard() {
     return (
       <section className="pageGrid">
         <div className="topHeader">
           <div>
             <p className="eyebrow">ASHACONNECT COMMAND CENTER</p>
-            <h1>Healthcare Workflow Dashboard</h1>
+            <h1>Healthcare Operations Command Center</h1>
             <p>
               Manage ASHA field work, beneficiary records, pregnancy tracking,
               immunization follow-ups, appointments, community events, reports and
@@ -611,7 +672,7 @@ function App() {
                   setBeneficiaryForm({
                     name: "",
                     age: "",
-                    gender: "female",
+                    gender: "Female",
                     phone: "",
                     village: "",
                     category: "general",
@@ -646,9 +707,9 @@ function App() {
                 setBeneficiaryForm({ ...beneficiaryForm, gender: e.target.value })
               }
             >
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-              <option value="other">Other</option>
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
             </select>
 
             <input
@@ -1459,11 +1520,15 @@ function App() {
   return (
     <div className="appShell">
       <aside className="sidebar">
+        <button className="sidebarBack" onClick={() => setShowLauncher(true)}>
+          ← Home
+        </button>
+
         <div className="brandBlock">
-          <div className="brandLogo">AC</div>
+          <div className="brandLogo">A</div>
           <div>
-            <h1>ASHA CCONNECT</h1>
-            <p>Workflow Automation & Database Management</p>
+            <h1>ASHA CONNECT</h1>
+            <p>Clinical Workflow & Community Health Intelligence</p>
           </div>
         </div>
 

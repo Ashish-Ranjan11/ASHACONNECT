@@ -1,0 +1,208 @@
+from fastapi import APIRouter, Depends, HTTPException, Body
+from sqlalchemy.orm import Session
+
+from app.db.mysql import get_db
+from app.deps import get_current_worker, visible_worker_ids
+from app.models import AshaWorker, Beneficiary
+
+router = APIRouter(prefix="/api/beneficiaries", tags=["Beneficiaries"])
+
+
+def model_has(model, field_name: str) -> bool:
+    return hasattr(model, field_name)
+
+
+def set_if_exists(obj, field_name: str, value):
+    if hasattr(obj, field_name):
+        setattr(obj, field_name, value)
+
+
+def get_if_exists(obj, *field_names, default=None):
+    for field in field_names:
+        if hasattr(obj, field):
+            value = getattr(obj, field)
+            if value is not None:
+                return value
+    return default
+
+
+def serialize_beneficiary(item: Beneficiary):
+    return {
+        "beneficiary_id": get_if_exists(item, "beneficiary_id", "id"),
+        "id": get_if_exists(item, "beneficiary_id", "id"),
+        "name": get_if_exists(item, "name", "full_name", "beneficiary_name", default=""),
+        "full_name": get_if_exists(item, "full_name", "name", "beneficiary_name", default=""),
+        "age": get_if_exists(item, "age", default=""),
+        "gender": get_if_exists(item, "gender", default=""),
+        "phone": get_if_exists(item, "phone", "phone_no", "contact_no", default=""),
+        "phone_no": get_if_exists(item, "phone_no", "phone", "contact_no", default=""),
+        "village": get_if_exists(item, "village", default=""),
+        "category": get_if_exists(item, "category", default="general"),
+        "address": get_if_exists(item, "address", default=""),
+        "asha_worker_id": get_if_exists(item, "asha_worker_id", "worker_id", default=None),
+    }
+
+
+def get_beneficiary_id(item: Beneficiary):
+    return get_if_exists(item, "beneficiary_id", "id")
+
+
+def get_beneficiary_worker_id(item: Beneficiary):
+    return get_if_exists(item, "asha_worker_id", "worker_id")
+
+
+def get_beneficiary_or_404(db: Session, beneficiary_id: int, current: AshaWorker):
+    worker_ids = visible_worker_ids(db, current)
+
+    id_field = Beneficiary.beneficiary_id if model_has(Beneficiary, "beneficiary_id") else Beneficiary.id
+
+    beneficiary = db.query(Beneficiary).filter(id_field == beneficiary_id).first()
+
+    if not beneficiary:
+        raise HTTPException(status_code=404, detail="Beneficiary not found")
+
+    beneficiary_worker_id = get_beneficiary_worker_id(beneficiary)
+
+    if beneficiary_worker_id not in worker_ids:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    return beneficiary
+
+
+@router.get("")
+def list_beneficiaries(
+    db: Session = Depends(get_db),
+    current: AshaWorker = Depends(get_current_worker),
+):
+    worker_ids = visible_worker_ids(db, current)
+
+    query = db.query(Beneficiary)
+
+    if model_has(Beneficiary, "asha_worker_id"):
+        query = query.filter(Beneficiary.asha_worker_id.in_(worker_ids))
+    elif model_has(Beneficiary, "worker_id"):
+        query = query.filter(Beneficiary.worker_id.in_(worker_ids))
+
+    if model_has(Beneficiary, "beneficiary_id"):
+        query = query.order_by(Beneficiary.beneficiary_id.desc())
+    elif model_has(Beneficiary, "id"):
+        query = query.order_by(Beneficiary.id.desc())
+
+    beneficiaries = query.all()
+
+    return [serialize_beneficiary(item) for item in beneficiaries]
+
+
+@router.post("")
+def create_beneficiary(
+    payload: dict = Body(...),
+    db: Session = Depends(get_db),
+    current: AshaWorker = Depends(get_current_worker),
+):
+    name = payload.get("name") or payload.get("full_name") or payload.get("beneficiary_name")
+    age = payload.get("age")
+    gender = payload.get("gender")
+    village = payload.get("village")
+    category = payload.get("category") or "general"
+    phone = payload.get("phone") or payload.get("phone_no") or payload.get("contact_no") or ""
+    address = payload.get("address") or ""
+
+    if not name:
+        raise HTTPException(status_code=400, detail="Name is required")
+
+    if age in [None, ""]:
+        raise HTTPException(status_code=400, detail="Age is required")
+
+    if not gender:
+        raise HTTPException(status_code=400, detail="Gender is required")
+
+    if not village:
+        raise HTTPException(status_code=400, detail="Village is required")
+
+    beneficiary = Beneficiary()
+
+    set_if_exists(beneficiary, "name", name)
+    set_if_exists(beneficiary, "full_name", name)
+    set_if_exists(beneficiary, "beneficiary_name", name)
+
+    set_if_exists(beneficiary, "age", int(age))
+    set_if_exists(beneficiary, "gender", gender)
+    set_if_exists(beneficiary, "village", village)
+    set_if_exists(beneficiary, "category", category)
+    set_if_exists(beneficiary, "address", address)
+
+    set_if_exists(beneficiary, "phone", phone)
+    set_if_exists(beneficiary, "phone_no", phone)
+    set_if_exists(beneficiary, "contact_no", phone)
+
+    set_if_exists(beneficiary, "asha_worker_id", current.worker_id)
+    set_if_exists(beneficiary, "worker_id", current.worker_id)
+
+    db.add(beneficiary)
+    db.commit()
+    db.refresh(beneficiary)
+
+    return serialize_beneficiary(beneficiary)
+
+
+@router.put("/{beneficiary_id}")
+def update_beneficiary(
+    beneficiary_id: int,
+    payload: dict = Body(...),
+    db: Session = Depends(get_db),
+    current: AshaWorker = Depends(get_current_worker),
+):
+    beneficiary = get_beneficiary_or_404(db, beneficiary_id, current)
+
+    name = payload.get("name") or payload.get("full_name") or payload.get("beneficiary_name")
+    phone = payload.get("phone") or payload.get("phone_no") or payload.get("contact_no")
+
+    if name is not None:
+        set_if_exists(beneficiary, "name", name)
+        set_if_exists(beneficiary, "full_name", name)
+        set_if_exists(beneficiary, "beneficiary_name", name)
+
+    if "age" in payload and payload.get("age") not in [None, ""]:
+        set_if_exists(beneficiary, "age", int(payload.get("age")))
+
+    if "gender" in payload:
+        set_if_exists(beneficiary, "gender", payload.get("gender"))
+
+    if "village" in payload:
+        set_if_exists(beneficiary, "village", payload.get("village"))
+
+    if "category" in payload:
+        set_if_exists(beneficiary, "category", payload.get("category"))
+
+    if "address" in payload:
+        set_if_exists(beneficiary, "address", payload.get("address") or "")
+
+    if phone is not None:
+        set_if_exists(beneficiary, "phone", phone)
+        set_if_exists(beneficiary, "phone_no", phone)
+        set_if_exists(beneficiary, "contact_no", phone)
+
+    db.commit()
+    db.refresh(beneficiary)
+
+    return {
+        "message": "Beneficiary updated successfully",
+        "beneficiary": serialize_beneficiary(beneficiary),
+    }
+
+
+@router.delete("/{beneficiary_id}")
+def delete_beneficiary(
+    beneficiary_id: int,
+    db: Session = Depends(get_db),
+    current: AshaWorker = Depends(get_current_worker),
+):
+    beneficiary = get_beneficiary_or_404(db, beneficiary_id, current)
+
+    db.delete(beneficiary)
+    db.commit()
+
+    return {
+        "message": "Beneficiary deleted successfully",
+        "beneficiary_id": beneficiary_id,
+    }

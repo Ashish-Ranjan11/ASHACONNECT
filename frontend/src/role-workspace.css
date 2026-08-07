@@ -1,0 +1,642 @@
+:root {
+  --role-navy: #061527;
+  --role-teal: #0f9f7a;
+  --role-green: #16a34a;
+  --role-red: #dc2626;
+  --role-orange: #f97316;
+  --role-blue: #2563eb;
+  --role-line: #e3ebf3;
+  --role-soft: #f7fafc;
+  --role-muted: #66758c;
+}
+
+.roleWorkspaceButton,
+.familyPortalButton {
+  position: fixed;
+  right: 28px;
+  bottom: 108px;
+  z-index: 8999;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 999px;
+  padding: 14px 20px 14px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(6, 21, 39, 0.96), rgba(37, 99, 235, 0.94));
+  box-shadow:
+    0 24px 70px rgba(6, 21, 39, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(18px);
+  cursor: pointer;
+  animation: roleButtonIn 0.5s ease both;
+}
+
+.familyPortalButton {
+  bottom: 28px;
+  background: linear-gradient(135deg, rgba(6, 21, 39, 0.96), rgba(15, 159, 122, 0.94));
+}
+
+.roleWorkspaceButton:hover,
+.familyPortalButton:hover {
+  transform: translateY(-6px) rotateX(7deg) rotateY(-6deg) scale(1.025);
+  box-shadow:
+    0 34px 95px rgba(6, 21, 39, 0.42),
+    0 0 0 8px rgba(37, 99, 235, 0.08);
+}
+
+.roleWorkspaceButton > span,
+.familyPortalButton > span {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 34% 28%, #ffffff 0 9%, transparent 10%),
+    linear-gradient(135deg, #93c5fd, #2563eb);
+  box-shadow:
+    0 0 0 8px rgba(147, 197, 253, 0.13),
+    0 18px 38px rgba(37, 99, 235, 0.28);
+}
+
+.familyPortalButton > span {
+  background:
+    radial-gradient(circle at 34% 28%, #ffffff 0 9%, transparent 10%),
+    linear-gradient(135deg, #34d399, #0f766e);
+}
+
+.roleWorkspaceButton section {
+  display: grid;
+  text-align: left;
+  line-height: 1.1;
+}
+
+.roleWorkspaceButton b {
+  font-size: 0.95rem;
+}
+
+.roleWorkspaceButton small {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.68);
+  font-weight: 750;
+  text-transform: capitalize;
+}
+
+@keyframes roleButtonIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.roleOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  padding: 28px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 0 0, rgba(15, 159, 122, 0.22), transparent 30%),
+    radial-gradient(circle at 100% 0, rgba(37, 99, 235, 0.18), transparent 32%),
+    rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(16px);
+}
+
+.roleDialog {
+  width: min(1450px, 97vw);
+  height: min(880px, 94vh);
+  display: grid;
+  grid-template-columns: 310px 1fr;
+  overflow: hidden;
+  border-radius: 36px;
+  background: #ffffff;
+  box-shadow: 0 32px 96px rgba(6, 21, 39, 0.22);
+  animation: roleOpen 0.28s cubic-bezier(.2,.9,.2,1) both;
+}
+
+@keyframes roleOpen {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.roleSidebar {
+  padding: 28px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(20, 184, 166, 0.28), transparent 25%),
+    linear-gradient(180deg, #061527 0%, #082a22 54%, #061527 100%);
+}
+
+.roleBrand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.roleBrand > div {
+  width: 56px;
+  height: 56px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0f766e, #22c55e);
+  box-shadow: 0 22px 48px rgba(15, 159, 122, 0.34);
+}
+
+.roleBrand b,
+.roleBrand span {
+  display: block;
+}
+
+.roleBrand b {
+  color: #ffffff;
+  font-size: 1.04rem;
+}
+
+.roleBrand span {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.8rem;
+}
+
+.roleIdentity {
+  border-radius: 24px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.roleIdentity span {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.roleIdentity b {
+  display: block;
+  margin: 8px 0 5px;
+  color: #ffffff;
+}
+
+.roleIdentity p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.66);
+  line-height: 1.55;
+  font-size: 0.86rem;
+}
+
+.roleSidebar button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.11);
+  color: #ffffff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.roleSidebar .roleLogout {
+  background: rgba(220, 38, 38, 0.24);
+}
+
+.roleMain {
+  position: relative;
+  overflow-y: auto;
+  padding: 34px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(15, 159, 122, 0.10), transparent 34%),
+    #f6f9fc;
+}
+
+.roleClose {
+  position: absolute;
+  right: 28px;
+  top: 24px;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  background: #eef4f8;
+  color: var(--role-navy);
+  font-size: 1.8rem;
+  font-weight: 900;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.roleHero {
+  min-height: 188px;
+  margin-bottom: 22px;
+  padding: 30px;
+  border-radius: 32px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(236, 253, 245, 0.90)),
+    #ffffff;
+  border: 1px solid var(--role-line);
+  box-shadow: 0 18px 54px rgba(15, 23, 42, 0.075);
+}
+
+.roleHero p {
+  margin: 0 0 10px;
+  color: var(--role-teal);
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.roleHero h2 {
+  margin: 0;
+  color: var(--role-navy);
+  font-size: clamp(2.4rem, 4vw, 4.3rem);
+  line-height: 0.95;
+  letter-spacing: -0.085em;
+}
+
+.roleHero span {
+  display: block;
+  max-width: 780px;
+  margin-top: 16px;
+  color: var(--role-muted);
+  font-weight: 720;
+  line-height: 1.7;
+}
+
+.roleMessage {
+  margin-bottom: 18px;
+  padding: 15px 18px;
+  border-radius: 18px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-weight: 900;
+}
+
+.roleMessage.error {
+  background: #fff1f2;
+  color: #be123c;
+  border-color: #fecdd3;
+}
+
+.roleMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.roleMetric,
+.rolePanel,
+.roleMember,
+.roleVillage,
+.roleSubPanel,
+.familyLoginCard {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--role-line);
+  border-radius: 26px;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.062);
+}
+
+.roleMetric {
+  min-height: 136px;
+  padding: 20px;
+}
+
+.roleMetric:hover,
+.rolePanel:hover,
+.roleMember:hover,
+.roleVillage:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.105);
+  border-color: rgba(15, 159, 122, 0.28);
+}
+
+.roleMetric span {
+  display: block;
+  margin-bottom: 13px;
+  color: var(--role-muted);
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.roleMetric b {
+  color: var(--role-navy);
+  font-size: 2.2rem;
+  letter-spacing: -0.055em;
+}
+
+.roleMetric.danger b {
+  color: var(--role-red);
+}
+
+.roleMetric.warning b {
+  color: var(--role-orange);
+}
+
+.rolePanel {
+  padding: 24px;
+  margin-bottom: 18px;
+}
+
+.rolePanelHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.rolePanelHead h3 {
+  margin: 0;
+  color: var(--role-navy);
+  font-size: 1.35rem;
+  letter-spacing: -0.045em;
+}
+
+.rolePanelHead span,
+.rolePanelHead p {
+  color: var(--role-muted);
+  font-weight: 800;
+}
+
+.roleTwo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.roleList {
+  display: grid;
+  gap: 12px;
+}
+
+.roleListItem {
+  padding: 16px;
+  border: 1px solid var(--role-line);
+  border-radius: 20px;
+  background: var(--role-soft);
+}
+
+.roleListItem.high {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.roleListItem.medium {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.roleListItem b {
+  color: var(--role-navy);
+}
+
+.roleListItem p {
+  margin: 6px 0;
+  color: var(--role-muted);
+  font-weight: 720;
+}
+
+.roleListItem small {
+  color: var(--role-teal);
+  font-weight: 900;
+}
+
+.roleTableWrap {
+  border: 1px solid var(--role-line);
+  border-radius: 22px;
+  overflow: auto;
+}
+
+.roleTableWrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.roleTableWrap th {
+  background: #eef4f8;
+  color: #334155;
+  text-align: left;
+  padding: 14px;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.roleTableWrap td {
+  padding: 14px;
+  border-bottom: 1px solid var(--role-line);
+  color: #334155;
+  font-weight: 740;
+}
+
+.roleTableWrap td b,
+.roleTableWrap td small {
+  display: block;
+}
+
+.roleVillageGrid,
+.roleMemberGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.roleVillage,
+.roleMember {
+  padding: 18px;
+}
+
+.roleVillage h4 {
+  margin: 0 0 14px;
+  color: var(--role-navy);
+}
+
+.roleVillage p {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  color: var(--role-muted);
+  font-weight: 780;
+}
+
+.roleVillage b {
+  color: var(--role-blue);
+}
+
+.roleMember {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.roleMember > div {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: #e0f2fe;
+  color: var(--role-blue);
+  font-weight: 950;
+}
+
+.roleMember b {
+  display: block;
+  color: var(--role-navy);
+}
+
+.roleMember p,
+.roleMember span {
+  display: block;
+  margin: 5px 0;
+  color: var(--role-muted);
+  font-weight: 750;
+}
+
+.roleEmpty {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--role-muted);
+}
+
+.roleEmpty > div {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #e0f2fe, #ecfdf5);
+}
+
+.roleEmpty h3 {
+  margin: 14px 0 4px;
+  color: var(--role-navy);
+}
+
+.roleEmpty p {
+  max-width: 480px;
+  margin: 0;
+  font-weight: 720;
+  line-height: 1.6;
+}
+
+.familyLoginCard {
+  position: relative;
+  width: min(520px, 92vw);
+  padding: 34px;
+}
+
+.familyLoginCard p {
+  margin: 0 0 10px;
+  color: var(--role-teal);
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.familyLoginCard h2 {
+  margin: 0;
+  color: var(--role-navy);
+  font-size: 2.6rem;
+  letter-spacing: -0.075em;
+}
+
+.familyLoginCard > span {
+  display: block;
+  margin: 12px 0 20px;
+  color: var(--role-muted);
+  font-weight: 720;
+}
+
+.familyLoginCard form {
+  display: grid;
+  gap: 14px;
+}
+
+.familyLoginCard label {
+  display: grid;
+  gap: 8px;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.familyLoginCard input {
+  min-height: 52px;
+  border: 1px solid #dbe7f0;
+  border-radius: 16px;
+  padding: 0 15px;
+  font-weight: 800;
+}
+
+.familyLoginCard form button {
+  min-height: 52px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--role-navy), var(--role-teal));
+  color: #ffffff;
+  font-weight: 950;
+}
+
+@media (max-width: 1050px) {
+  .roleDialog {
+    grid-template-columns: 1fr;
+  }
+
+  .roleSidebar {
+    display: none;
+  }
+
+  .roleMetrics,
+  .roleTwo,
+  .roleVillageGrid,
+  .roleMemberGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .roleOverlay {
+    padding: 12px;
+  }
+
+  .roleMain {
+    padding: 18px;
+  }
+
+  .roleWorkspaceButton {
+    right: 18px;
+    bottom: 96px;
+  }
+
+  .familyPortalButton {
+    right: 18px;
+    bottom: 18px;
+  }
+}
+
+/* ASHACONNECT is staff-first now; family portal hidden from frontend */
+.familyPortalButton { display: none !important; }
+
+.roleWorkspaceButton {
+  bottom: 108px !important;
+}

@@ -1,0 +1,624 @@
+:root {
+  --care-navy: #061527;
+  --care-teal: #0f9f7a;
+  --care-red: #dc2626;
+  --care-orange: #f97316;
+  --care-blue: #2563eb;
+  --care-line: #e3ebf3;
+  --care-soft: #f7fafc;
+  --care-muted: #66758c;
+}
+
+.careAutomationButton {
+  position: fixed;
+  right: 28px;
+  bottom: 188px;
+  z-index: 8998;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 999px;
+  padding: 14px 20px 14px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(6, 21, 39, 0.96), rgba(124, 58, 237, 0.94));
+  box-shadow:
+    0 24px 70px rgba(6, 21, 39, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(18px);
+  cursor: pointer;
+  animation: careButtonIn 0.5s ease both;
+}
+
+.careAutomationButton:hover {
+  transform: translateY(-6px) rotateX(7deg) rotateY(-6deg) scale(1.025);
+  box-shadow:
+    0 34px 95px rgba(6, 21, 39, 0.42),
+    0 0 0 8px rgba(124, 58, 237, 0.1);
+}
+
+.careAutomationButton > span {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 34% 28%, #ffffff 0 9%, transparent 10%),
+    linear-gradient(135deg, #c4b5fd, #7c3aed);
+  box-shadow:
+    0 0 0 8px rgba(196, 181, 253, 0.13),
+    0 18px 38px rgba(124, 58, 237, 0.28);
+}
+
+.careAutomationButton section {
+  display: grid;
+  text-align: left;
+  line-height: 1.1;
+}
+
+.careAutomationButton b {
+  font-size: 0.95rem;
+}
+
+.careAutomationButton small {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.68);
+  font-weight: 750;
+}
+
+@keyframes careButtonIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.careOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  padding: 28px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 0 0, rgba(15, 159, 122, 0.22), transparent 30%),
+    radial-gradient(circle at 100% 0, rgba(124, 58, 237, 0.2), transparent 32%),
+    rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(16px);
+}
+
+.careDialog {
+  width: min(1450px, 97vw);
+  height: min(880px, 94vh);
+  display: grid;
+  grid-template-columns: 310px 1fr;
+  overflow: hidden;
+  border-radius: 36px;
+  background: #ffffff;
+  box-shadow: 0 32px 96px rgba(6, 21, 39, 0.22);
+  animation: careOpen 0.28s cubic-bezier(.2,.9,.2,1) both;
+}
+
+@keyframes careOpen {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.careSidebar {
+  padding: 28px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(124, 58, 237, 0.28), transparent 25%),
+    linear-gradient(180deg, #061527 0%, #20133a 54%, #061527 100%);
+}
+
+.careBrand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.careBrand > div {
+  width: 56px;
+  height: 56px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #7c3aed, #0f9f7a);
+  box-shadow: 0 22px 48px rgba(124, 58, 237, 0.32);
+}
+
+.careBrand b,
+.careBrand span {
+  display: block;
+}
+
+.careBrand b {
+  color: #ffffff;
+  font-size: 1.04rem;
+}
+
+.careBrand span {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.8rem;
+}
+
+.careSidebar nav {
+  display: grid;
+  gap: 9px;
+}
+
+.careSidebar nav button {
+  min-height: 48px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  padding: 0 16px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.70);
+  text-align: left;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.careSidebar nav button:hover,
+.careSidebar nav button.active {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+}
+
+.careSidebar nav button.active {
+  box-shadow: inset 4px 0 0 #c4b5fd;
+}
+
+.careStatus {
+  margin-top: auto;
+  border-radius: 24px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.careStatus span {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.careStatus b {
+  display: block;
+  margin: 8px 0 5px;
+}
+
+.careStatus p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.careMain {
+  position: relative;
+  overflow-y: auto;
+  padding: 34px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.1), transparent 34%),
+    #f6f9fc;
+}
+
+.careClose {
+  position: absolute;
+  right: 28px;
+  top: 24px;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  background: #eef4f8;
+  color: var(--care-navy);
+  font-size: 1.8rem;
+  font-weight: 900;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.careHero {
+  min-height: 188px;
+  margin-bottom: 22px;
+  padding: 30px;
+  border-radius: 32px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(245, 243, 255, 0.90)),
+    #ffffff;
+  border: 1px solid var(--care-line);
+  box-shadow: 0 18px 54px rgba(15, 23, 42, 0.075);
+}
+
+.careHero p {
+  margin: 0 0 10px;
+  color: #7c3aed;
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.careHero h2 {
+  margin: 0;
+  color: var(--care-navy);
+  font-size: clamp(2.4rem, 4vw, 4.3rem);
+  line-height: 0.95;
+  letter-spacing: -0.085em;
+}
+
+.careHero span {
+  display: block;
+  max-width: 780px;
+  margin-top: 16px;
+  color: var(--care-muted);
+  font-weight: 720;
+  line-height: 1.7;
+}
+
+.careMessage {
+  margin-bottom: 18px;
+  padding: 15px 18px;
+  border-radius: 18px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-weight: 900;
+}
+
+.carePanel,
+.careSetting,
+.careMessageCard {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--care-line);
+  border-radius: 26px;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.062);
+}
+
+.carePanel {
+  padding: 24px;
+  margin-bottom: 18px;
+}
+
+.carePanelHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.carePanelHead h3 {
+  margin: 0;
+  color: var(--care-navy);
+  font-size: 1.35rem;
+  letter-spacing: -0.045em;
+}
+
+.carePanelHead p {
+  margin: 7px 0 0;
+  color: var(--care-muted);
+  font-weight: 720;
+}
+
+.carePanelHead button,
+.careActionGrid button,
+.careMessageCard button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 15px;
+  padding: 0 18px;
+  background: linear-gradient(135deg, var(--care-navy), #7c3aed);
+  color: #ffffff;
+  font-weight: 920;
+  cursor: pointer;
+  box-shadow: 0 14px 30px rgba(6, 21, 39, 0.14);
+}
+
+.careFormGrid,
+.careSettingsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.careSettingsGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.careFormGrid label,
+.careSetting label {
+  display: grid;
+  gap: 8px;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.careFormGrid select,
+.careFormGrid textarea,
+.careSetting select,
+.careSetting input,
+.careSetting textarea {
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid #dbe7f0;
+  border-radius: 16px;
+  padding: 12px 15px;
+  font-weight: 800;
+  color: var(--care-navy);
+  background: #ffffff;
+}
+
+.careFormGrid textarea,
+.careSetting textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.careFull {
+  grid-column: 1 / -1;
+}
+
+.careActionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.careActionGrid button {
+  min-height: 150px;
+  text-align: left;
+  padding: 22px;
+  background: #ffffff;
+  color: var(--care-navy);
+  border: 1px solid var(--care-line);
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.062);
+}
+
+.careActionGrid button:hover,
+.careMessageCard:hover,
+.careSetting:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.105);
+  border-color: rgba(124, 58, 237, 0.28);
+}
+
+.careActionGrid b {
+  display: block;
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+}
+
+.careActionGrid span {
+  color: var(--care-muted);
+  font-weight: 720;
+  line-height: 1.5;
+}
+
+.careSetting {
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.careSetting h4 {
+  margin: 0;
+  color: var(--care-navy);
+  text-transform: capitalize;
+}
+
+.careMessageList {
+  display: grid;
+  gap: 12px;
+}
+
+.careMessageCard {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+}
+
+.careMessageCard b {
+  color: var(--care-navy);
+}
+
+.careMessageCard p {
+  margin: 6px 0;
+  color: var(--care-muted);
+  font-weight: 720;
+}
+
+.careMessageCard small {
+  color: #7c3aed;
+  font-weight: 900;
+}
+
+.careMessageCard div {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.careMessageCard a {
+  min-height: 38px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #eef4f8;
+  color: var(--care-navy);
+  text-decoration: none;
+  font-weight: 900;
+}
+
+.careTableWrap {
+  border: 1px solid var(--care-line);
+  border-radius: 22px;
+  overflow: auto;
+}
+
+.careTableWrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.careTableWrap th {
+  background: #eef4f8;
+  color: #334155;
+  text-align: left;
+  padding: 14px;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.careTableWrap td {
+  padding: 14px;
+  border-bottom: 1px solid var(--care-line);
+  color: #334155;
+  font-weight: 740;
+}
+
+.careTableWrap td b,
+.careTableWrap td small {
+  display: block;
+}
+
+.careTableWrap a {
+  color: #7c3aed;
+  font-weight: 950;
+}
+
+.careEmpty {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--care-muted);
+}
+
+.careEmpty h3 {
+  margin: 0 0 8px;
+  color: var(--care-navy);
+}
+
+.careEmpty p {
+  max-width: 480px;
+  margin: 0;
+  font-weight: 720;
+  line-height: 1.6;
+}
+
+@media (max-width: 1050px) {
+  .careDialog {
+    grid-template-columns: 1fr;
+  }
+
+  .careSidebar {
+    display: none;
+  }
+
+  .careFormGrid,
+  .careSettingsGrid,
+  .careActionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .careOverlay {
+    padding: 12px;
+  }
+
+  .careMain {
+    padding: 18px;
+  }
+
+  .careAutomationButton {
+    right: 18px;
+    bottom: 172px;
+  }
+
+  .careMessageCard {
+    grid-template-columns: 1fr;
+  }
+}
+
+.careSaveSetting {
+  min-height: 46px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #061527, #7c3aed);
+  color: #ffffff;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.careSaveSetting:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(6, 21, 39, 0.16);
+}
+
+.careFlowGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.careFlowGrid article {
+  padding: 20px;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid #e3ebf3;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.055);
+}
+
+.careFlowGrid article:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.10);
+}
+
+.careFlowGrid b {
+  display: block;
+  color: #061527;
+  margin-bottom: 8px;
+}
+
+.careFlowGrid p {
+  margin: 0;
+  color: #66758c;
+  font-weight: 720;
+  line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+  .careFlowGrid {
+    grid-template-columns: 1fr;
+  }
+}
