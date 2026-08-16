@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./app-theme.css";
 import { api } from "./api";
 import LoginPage from "./components/LoginPage";
+import VoiceAgent from "./components/VoiceAgent";
 
 import "./operations-hub";
 import "./role-workspace";
@@ -1566,6 +1567,37 @@ function App() {
         {message ? <div className="messageBox">{message}</div> : null}
         {renderActivePage()}
       </main>
+
+      <div
+        style={{
+          position: "fixed",
+          right: "28px",
+          bottom: "28px",
+          zIndex: 99999,
+        }}
+      >
+        <button
+          type="button"
+          style={{
+            padding: "16px 22px",
+            borderRadius: "999px",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: 700,
+            fontSize: "15px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
+          }}
+        >
+          🎙 Ask ASHA AI
+        </button>
+      </div>
+
+      <VoiceAgent
+        token={token}
+        onActionComplete={() => {
+          loadDashboardData();
+        }}
+      />
     </div>
   );
 }

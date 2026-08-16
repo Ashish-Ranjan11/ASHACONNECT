@@ -102,15 +102,30 @@ def ensure_beneficiary_access(db: Session, beneficiary_id: int, current: AshaWor
 
 @router.get("")
 def list_appointments(
+    date: str | None = None,
     db: Session = Depends(get_db),
     current: AshaWorker = Depends(get_current_worker),
 ):
     worker_ids = visible_worker_ids(db, current)
 
-    appointments = (
+    query = (
         db.query(Appointment)
-        .join(Beneficiary, Appointment.beneficiary_id == Beneficiary.beneficiary_id)
-        .filter(Beneficiary.asha_worker_id.in_(worker_ids))
+        .join(
+            Beneficiary,
+            Appointment.beneficiary_id == Beneficiary.beneficiary_id
+        )
+        .filter(
+            Beneficiary.asha_worker_id.in_(worker_ids)
+        )
+    )
+
+    if date:
+        query = query.filter(
+            Appointment.appointment_date == parse_date(date)
+        )
+
+    appointments = (
+        query
         .order_by(Appointment.appointment_date.asc())
         .all()
     )
@@ -118,9 +133,23 @@ def list_appointments(
     result = []
 
     for item in appointments:
-        beneficiary = db.get(Beneficiary, item.beneficiary_id)
-        beneficiary_name = beneficiary.full_name if beneficiary else "N/A"
-        result.append(serialize_appointment(item, beneficiary_name))
+        beneficiary = db.get(
+            Beneficiary,
+            item.beneficiary_id
+        )
+
+        beneficiary_name = (
+            beneficiary.full_name
+            if beneficiary
+            else "N/A"
+        )
+
+        result.append(
+            serialize_appointment(
+                item,
+                beneficiary_name
+            )
+        )
 
     return result
 
@@ -162,3 +191,118 @@ def create_appointment(
     db.commit()
 
     return "Appointment scheduled successfully"
+
+
+@router.put("/{appointment_id}")
+def update_appointment(
+    appointment_id: int,
+    payload: dict,
+    db: Session = Depends(get_db),
+    current: AshaWorker = Depends(get_current_worker),
+):
+    worker_ids = visible_worker_ids(db, current)
+
+    appointment = db.get(Appointment, appointment_id)
+
+    if not appointment:
+        raise HTTPException(
+            status_code=404,
+            detail="Appointment not found",
+        )
+
+    beneficiary = db.get(
+        Beneficiary,
+        appointment.beneficiary_id,
+    )
+
+    if (
+        not beneficiary
+        or beneficiary.asha_worker_id not in worker_ids
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied",
+        )
+
+    allowed_fields = [
+        "appointment_date",
+        "appointment_time",
+        "appointment_type",
+        "status",
+        "notes",
+        "location",
+    ]
+
+    for field in allowed_fields:
+
+        if field not in payload:
+            continue
+
+        value = payload[field]
+
+        if field == "appointment_date" and value:
+            value = parse_date(value)
+
+        setattr(
+            appointment,
+            field,
+            value,
+        )
+
+    db.commit()
+    db.refresh(appointment)
+
+    beneficiary_name = (
+        beneficiary.full_name
+        if beneficiary
+        else "N/A"
+    )
+
+    return serialize_appointment(
+        appointment,
+        beneficiary_name,
+    )
+
+
+@router.delete("/{appointment_id}")
+def delete_appointment(
+    appointment_id: int,
+    db: Session = Depends(get_db),
+    current: AshaWorker = Depends(get_current_worker),
+):
+    worker_ids = visible_worker_ids(db, current)
+
+    appointment = db.get(
+        Appointment,
+        appointment_id,
+    )
+
+    if not appointment:
+        raise HTTPException(
+            status_code=404,
+            detail="Appointment not found",
+        )
+
+    beneficiary = db.get(
+        Beneficiary,
+        appointment.beneficiary_id,
+    )
+
+    if (
+        not beneficiary
+        or beneficiary.asha_worker_id not in worker_ids
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied",
+        )
+
+    db.delete(appointment)
+    db.commit()
+
+    return {
+        "success": True,
+        "appointment_id": appointment_id,
+        "message": "Appointment deleted successfully",
+    }
+

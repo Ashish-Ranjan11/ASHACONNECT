@@ -1,0 +1,382 @@
+import os
+import httpx
+
+from fastapi import APIRouter, Header, UploadFile, File, Form
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
+
+from app.agent.intent import detect_intent
+from app.stt import transcribe_audio
+from app.tts.service import synthesize_speech
+
+
+router = APIRouter(
+    prefix="/voice",
+    tags=["Voice Agent"]
+)
+
+
+ASHA_BACKEND_URL = os.getenv(
+    "ASHA_BACKEND_URL",
+    "http://127.0.0.1:8000"
+)
+
+
+class CommandRequest(BaseModel):
+    text: str
+
+
+async def get_appointments(
+    date=None,
+    authorization=None
+):
+
+    url = f"{ASHA_BACKEND_URL}/api/appointments"
+
+    params = {}
+
+    if date:
+        params["date"] = date
+
+    headers = {}
+
+    if authorization:
+        headers["Authorization"] = authorization
+
+    async with httpx.AsyncClient(timeout=10.0) as client:
+
+        response = await client.get(
+            url,
+            params=params,
+            headers=headers
+        )
+
+        response.raise_for_status()
+
+        return response.json()
+
+
+def build_appointment_response(
+    data,
+    date_label=None
+):
+
+    if isinstance(data, dict):
+
+        appointments = (
+            data.get("appointments")
+            or data.get("data")
+            or data.get("items")
+            or []
+        )
+
+    elif isinstance(data, list):
+
+        appointments = data
+
+    else:
+
+        appointments = []
+
+    if not appointments:
+
+        if date_label == "tomorrow":
+            return "कल कोई अपॉइंटमेंट नहीं है।"
+
+        if date_label == "today":
+            return "आज कोई अपॉइंटमेंट नहीं है।"
+
+        return "कोई अपॉइंटमेंट नहीं मिला।"
+
+    count = len(appointments)
+
+    if count == 1:
+        response = "एक अपॉइंटमेंट मिला है।"
+
+    else:
+        response = f"{count} अपॉइंटमेंट मिले हैं।"
+
+    for appointment in appointments[:5]:
+
+        name = (
+            appointment.get("beneficiary_name")
+            or appointment.get("name")
+            or appointment.get("patient_name")
+            or appointment.get("beneficiary")
+        )
+
+        time = (
+            appointment.get("time")
+            or appointment.get("appointment_time")
+            or appointment.get("scheduled_time")
+        )
+
+        if name and time:
+
+            time_text = str(time)
+
+            if time_text.startswith("07:00"):
+                time_text = "सुबह 7 बजे"
+
+            elif time_text.startswith("08:00"):
+                time_text = "सुबह 8 बजे"
+
+            elif time_text.startswith("09:00"):
+                time_text = "सुबह 9 बजे"
+
+            elif time_text.startswith("10:00"):
+                time_text = "सुबह 10 बजे"
+
+            elif time_text.startswith("11:00"):
+                time_text = "सुबह 11 बजे"
+
+            elif time_text.startswith("12:00"):
+                time_text = "दोपहर 12 बजे"
+
+            response += (
+                f" {name} का अपॉइंटमेंट "
+                f"{time_text} है।"
+            )
+
+        elif name:
+
+            response += (
+                f" {name} का अपॉइंटमेंट है।"
+            )
+
+    return response
+
+
+@router.post("/command")
+async def process_command(
+    request: CommandRequest,
+    authorization: str | None = Header(default=None)
+):
+
+    result = detect_intent(request.text)
+
+    intent = result["intent"]
+
+    if intent == "appointments.list":
+
+        entities = result.get("entities", {})
+
+        date = entities.get("date")
+        date_label = entities.get("date_label")
+
+        if not authorization:
+
+            return {
+                "success": False,
+                "intent": intent,
+                "error": "Authentication required"
+            }
+
+        try:
+
+            appointments = await get_appointments(
+                date=date,
+                authorization=authorization
+            )
+
+            response = build_appointment_response(
+                appointments,
+                date_label=date_label
+            )
+
+            return {
+                "success": True,
+                "input": request.text,
+                "intent": intent,
+                "confidence": result["confidence"],
+                "entities": entities,
+                "normalized_text": result["normalized_text"],
+                "backend": {
+                    "status": "authenticated",
+                    "service": ASHA_BACKEND_URL,
+                    "endpoint": "/api/appointments"
+                },
+                "response": response,
+                "data": appointments
+            }
+
+        except httpx.HTTPStatusError as exc:
+
+            if exc.response.status_code == 401:
+
+                return {
+                    "success": False,
+                    "intent": intent,
+                    "error": "Authentication failed"
+                }
+
+            return {
+                "success": False,
+                "intent": intent,
+                "error": "ASHA backend returned an error",
+                "status_code": exc.response.status_code
+            }
+
+        except Exception as exc:
+
+            return {
+                "success": False,
+                "intent": intent,
+                "error": "Could not connect to ASHA backend",
+                "details": str(exc)
+            }
+
+    return {
+        "success": True,
+        "input": request.text,
+        "intent": intent,
+        "confidence": result["confidence"],
+        "entities": result["entities"],
+        "normalized_text": result["normalized_text"],
+        "response": (
+            "मैं आपकी बात समझ नहीं पाई। "
+            "कृपया दोबारा बताएं।"
+        )
+    }
+
+
+@router.post("/process")
+async def process_voice(
+    audio: UploadFile = File(...),
+    language: str = Form("hi"),
+    authorization: str | None = Header(default=None)
+):
+
+    if not authorization:
+
+        return {
+            "success": False,
+            "error": "Authentication required"
+        }
+
+    temp_path = None
+
+    try:
+
+        import tempfile
+
+        suffix = os.path.splitext(
+            audio.filename or ".wav"
+        )[1]
+
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=suffix
+        ) as temp:
+
+            content = await audio.read()
+
+            temp.write(content)
+
+            temp_path = temp.name
+
+        # -----------------------------
+        # STT
+        # -----------------------------
+
+        text = transcribe_audio(
+            temp_path,
+            language=language
+        )
+
+        # -----------------------------
+        # INTENT
+        # -----------------------------
+
+        result = detect_intent(text)
+
+        intent = result["intent"]
+
+        response_text = (
+            "मैं आपकी बात समझ नहीं पाई। "
+            "कृपया दोबारा बताएं।"
+        )
+
+        data = []
+
+        # -----------------------------
+        # APPOINTMENTS
+        # -----------------------------
+
+        if intent == "appointments.list":
+
+            entities = result.get(
+                "entities",
+                {}
+            )
+
+            appointments = await get_appointments(
+                date=entities.get("date"),
+                authorization=authorization
+            )
+
+            response_text = build_appointment_response(
+                appointments,
+                date_label=entities.get("date_label")
+            )
+
+            data = appointments
+
+        # -----------------------------
+        # TTS
+        # -----------------------------
+
+        audio_path = synthesize_speech(
+            response_text,
+            language
+        )
+
+        return {
+            "success": True,
+            "input": text,
+            "language": language,
+            "intent": intent,
+            "confidence": result["confidence"],
+            "entities": result.get("entities", {}),
+            "response": response_text,
+            "audio_path": audio_path,
+            "data": data
+        }
+
+    except httpx.HTTPStatusError as exc:
+
+        return {
+            "success": False,
+            "error": "ASHA backend error",
+            "status_code": exc.response.status_code
+        }
+
+    except Exception as exc:
+
+        return {
+            "success": False,
+            "error": str(exc)
+        }
+
+    finally:
+
+        if temp_path and os.path.exists(temp_path):
+
+            os.remove(temp_path)
+
+
+@router.get("/audio")
+def get_audio(path: str):
+
+    if not os.path.exists(path):
+
+        return {
+            "success": False,
+            "error": "Audio file not found"
+        }
+
+    return FileResponse(
+        path,
+        media_type="audio/mpeg",
+        filename="asha-response.mp3"
+    )

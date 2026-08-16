@@ -1,0 +1,833 @@
+import { useEffect, useRef, useState } from "react";
+
+const VOICE_API =
+  import.meta.env.VITE_VOICE_API_URL ||
+  "http://127.0.0.1:8010";
+
+function httpToWs(url) {
+  return url
+    .replace(/^http:/, "ws:")
+    .replace(/^https:/, "wss:");
+}
+
+function downsampleBuffer(
+  buffer,
+  inputSampleRate,
+  outputSampleRate = 16000
+) {
+  if (inputSampleRate === outputSampleRate) {
+    return buffer;
+  }
+
+  const ratio = inputSampleRate / outputSampleRate;
+  const newLength = Math.round(buffer.length / ratio);
+  const result = new Float32Array(newLength);
+
+  let offsetResult = 0;
+  let offsetBuffer = 0;
+
+  while (offsetResult < result.length) {
+    const nextOffsetBuffer = Math.round(
+      (offsetResult + 1) * ratio
+    );
+
+    let accum = 0;
+    let count = 0;
+
+    for (
+      let i = offsetBuffer;
+      i < nextOffsetBuffer && i < buffer.length;
+      i++
+    ) {
+      accum += buffer[i];
+      count++;
+    }
+
+    result[offsetResult] =
+      count > 0 ? accum / count : 0;
+
+    offsetResult++;
+    offsetBuffer = nextOffsetBuffer;
+  }
+
+  return result;
+}
+
+function float32ToPCM16(float32) {
+  const pcm = new Int16Array(float32.length);
+
+  for (let i = 0; i < float32.length; i++) {
+    const sample = Math.max(
+      -1,
+      Math.min(1, float32[i])
+    );
+
+    pcm[i] =
+      sample < 0
+        ? sample * 0x8000
+        : sample * 0x7fff;
+  }
+
+  return pcm.buffer;
+}
+
+export default function VoiceAgent({
+  token,
+  onActionComplete,
+}) {
+  const socketRef = useRef(null);
+
+  const streamRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const processorRef = useRef(null);
+  const sourceRef = useRef(null);
+
+  const playbackContextRef = useRef(null);
+  const playbackTimeRef = useRef(0);
+
+  const [connected, setConnected] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [status, setStatus] = useState("idle");
+  const [transcript, setTranscript] = useState("");
+  const [response, setResponse] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, []);
+
+  async function playPCM24k(arrayBuffer) {
+    if (!playbackContextRef.current) {
+      playbackContextRef.current =
+        new AudioContext({
+          sampleRate: 24000,
+        });
+    }
+
+    const ctx = playbackContextRef.current;
+
+    if (ctx.state === "suspended") {
+      await ctx.resume();
+    }
+
+    const pcm = new Int16Array(arrayBuffer);
+
+    const audioBuffer = ctx.createBuffer(
+      1,
+      pcm.length,
+      24000
+    );
+
+    const channel = audioBuffer.getChannelData(0);
+
+    for (let i = 0; i < pcm.length; i++) {
+      channel[i] = pcm[i] / 32768;
+    }
+
+    const source = ctx.createBufferSource();
+
+    source.buffer = audioBuffer;
+    source.connect(ctx.destination);
+
+    const now = ctx.currentTime;
+
+    const startAt = Math.max(
+      now,
+      playbackTimeRef.current
+    );
+
+    source.start(startAt);
+
+    playbackTimeRef.current =
+      startAt + audioBuffer.duration;
+  }
+
+  async function connect() {
+    setError("");
+    setStatus("connecting");
+
+    if (!token) {
+      setError(
+        "Please login before using ASHA AI."
+      );
+      setStatus("error");
+      return;
+    }
+
+    const wsBase = httpToWs(VOICE_API);
+
+    const wsUrl =
+      `${wsBase}/voice/live` +
+      `?token=${encodeURIComponent(token)}`;
+
+    const socket = new WebSocket(wsUrl);
+
+    socket.binaryType = "arraybuffer";
+    socketRef.current = socket;
+
+    socket.onopen = () => {
+      setConnected(true);
+      setStatus("connected");
+    };
+
+    socket.onmessage = async (event) => {
+      if (event.data instanceof ArrayBuffer) {
+        await playPCM24k(event.data);
+        return;
+      }
+
+      let message;
+
+      try {
+        message = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+
+      if (message.type === "live_ready") {
+        setStatus("ready");
+        await startMicrophone();
+        return;
+      }
+
+      if (message.type === "input_transcript") {
+        setTranscript((previous) =>
+          `${previous} ${message.text || ""}`.trim()
+        );
+        return;
+      }
+
+      if (message.type === "output_transcript") {
+        setResponse((previous) =>
+          `${previous} ${message.text || ""}`.trim()
+        );
+        return;
+      }
+
+      if (message.type === "action_executed") {
+        onActionComplete?.(message);
+        return;
+      }
+
+      if (message.type === "error") {
+        setError(
+          message.message ||
+          "Gemini Live error"
+        );
+
+        setStatus("error");
+      }
+    };
+
+    socket.onerror = (event) => {
+      console.error("Voice socket error:", event);
+
+      setError(
+        "Could not connect to ASHA AI."
+      );
+
+      setStatus("error");
+    };
+
+    socket.onclose = () => {
+      setConnected(false);
+      setListening(false);
+
+      if (status !== "error") {
+        setStatus("idle");
+      }
+
+      stopMicrophone();
+    };
+  }
+
+  async function startMicrophone() {
+    try {
+      if (
+        !socketRef.current ||
+        socketRef.current.readyState !== WebSocket.OPEN
+      ) {
+        return;
+      }
+
+      const stream =
+        await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
+
+      streamRef.current = stream;
+
+      const audioContext = new AudioContext();
+
+      audioContextRef.current = audioContext;
+
+      const source =
+        audioContext.createMediaStreamSource(
+          stream
+        );
+
+      sourceRef.current = source;
+
+      const processor =
+        audioContext.createScriptProcessor(
+          4096,
+          1,
+          1
+        );
+
+      processorRef.current = processor;
+
+      processor.onaudioprocess = (event) => {
+        const socket = socketRef.current;
+
+        if (
+          !socket ||
+          socket.readyState !== WebSocket.OPEN
+        ) {
+          return;
+        }
+
+        const input =
+          event.inputBuffer.getChannelData(0);
+
+        const downsampled =
+          downsampleBuffer(
+            input,
+            audioContext.sampleRate,
+            16000
+          );
+
+        const pcm =
+          float32ToPCM16(downsampled);
+
+        socket.send(pcm);
+      };
+
+      source.connect(processor);
+      processor.connect(
+        audioContext.destination
+      );
+
+      setListening(true);
+      setStatus("listening");
+
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        "Microphone access failed."
+      );
+
+      setStatus("error");
+    }
+  }
+
+  function stopMicrophone() {
+    if (processorRef.current) {
+      try {
+        processorRef.current.disconnect();
+      } catch {}
+
+      processorRef.current = null;
+    }
+
+    if (sourceRef.current) {
+      try {
+        sourceRef.current.disconnect();
+      } catch {}
+
+      sourceRef.current = null;
+    }
+
+    if (streamRef.current) {
+      streamRef.current
+        .getTracks()
+        .forEach((track) => track.stop());
+
+      streamRef.current = null;
+    }
+
+    if (audioContextRef.current) {
+      audioContextRef.current
+        .close()
+        .catch(() => {});
+
+      audioContextRef.current = null;
+    }
+
+    setListening(false);
+  }
+
+  function disconnect() {
+    stopMicrophone();
+
+    if (socketRef.current) {
+      try {
+        socketRef.current.close();
+      } catch {}
+
+      socketRef.current = null;
+    }
+
+    if (playbackContextRef.current) {
+      playbackContextRef.current
+        .close()
+        .catch(() => {});
+
+      playbackContextRef.current = null;
+    }
+
+    playbackTimeRef.current = 0;
+
+    setConnected(false);
+    setListening(false);
+    setStatus("idle");
+  }
+
+  function toggleVoice() {
+    setError("");
+
+    // One click begins the continuous ASHA AI session.
+    if (!connected) {
+      setTranscript("");
+      setResponse("");
+      connect();
+      return;
+    }
+
+    // Second click ends the entire conversation.
+    disconnect();
+  }
+
+  const buttonText =
+    status === "connecting"
+      ? "Connecting..."
+      : connected
+      ? "■ End ASHA AI"
+      : "🎙️ Ask ASHA AI";
+
+  return (
+    <div className="asha-voice-agent">
+
+      {!connected ? (
+        <button
+          type="button"
+          className="asha-ai-launcher"
+          onClick={toggleVoice}
+          disabled={status === "connecting"}
+        >
+          <span className="asha-ai-orb">
+            <span className="asha-ai-orb-core">✦</span>
+            <span className="asha-ai-pulse asha-ai-pulse-one" />
+            <span className="asha-ai-pulse asha-ai-pulse-two" />
+          </span>
+
+          <span className="asha-ai-launcher-copy">
+            <strong>ASHA AI</strong>
+            <small>
+              {status === "connecting"
+                ? "Connecting..."
+                : "Voice Health Copilot"}
+            </small>
+          </span>
+
+          <span
+            style={{
+              marginLeft: "auto",
+              fontSize: "16px",
+              opacity: 0.8,
+            }}
+          >
+            🎙
+          </span>
+        </button>
+      ) : (
+        <div className="asha-ai-dock">
+
+          {/* ==================================================
+              HEADER
+              ================================================== */}
+
+          <div className="asha-ai-header">
+            <div className="asha-ai-identity">
+              <div className="asha-ai-header-orb">
+                ✦
+              </div>
+
+              <div className="asha-ai-title">
+                <strong>ASHA AI</strong>
+                <span>
+                  Voice Health Assistant
+                </span>
+              </div>
+            </div>
+
+            <div className="asha-ai-header-actions">
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "9px",
+                  fontWeight: 700,
+                  color: "#15803d",
+                  background: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
+                  padding: "6px 8px",
+                  borderRadius: "999px",
+                }}
+              >
+                <span
+                  style={{
+                    width: "7px",
+                    height: "7px",
+                    borderRadius: "50%",
+                    background: "#22c55e",
+                  }}
+                />
+                LIVE
+              </span>
+            </div>
+          </div>
+
+
+          {/* ==================================================
+              LIVE VOICE STAGE
+              ================================================== */}
+
+          <div className="asha-ai-stage">
+
+            <div
+              className={
+                listening
+                  ? "asha-ai-stage-orb asha-ai-listening"
+                  : "asha-ai-stage-orb"
+              }
+            >
+              ✦
+
+              {listening && (
+                <>
+                  <span className="asha-ai-pulse asha-ai-pulse-one" />
+                  <span className="asha-ai-pulse asha-ai-pulse-two" />
+                </>
+              )}
+            </div>
+
+            <h3>
+              {listening
+                ? "I'm listening"
+                : status === "connecting"
+                ? "Connecting..."
+                : "ASHA AI is active"}
+            </h3>
+
+            <p>
+              {listening
+                ? "Speak naturally in Hindi, Hinglish, Nepali or English"
+                : "Your continuous voice session is running"}
+            </p>
+
+            {listening && (
+              <div className="asha-ai-wave">
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+              </div>
+            )}
+          </div>
+
+
+          {/* ==================================================
+              DATABASE CONNECTION STRIP
+              ================================================== */}
+
+          <div
+            style={{
+              margin: "0 16px 12px",
+              padding: "10px 12px",
+              display: "flex",
+              alignItems: "center",
+              gap: "9px",
+              border: "1px solid #dbeafe",
+              borderRadius: "13px",
+              background: "#eff6ff",
+            }}
+          >
+            <div
+              style={{
+                width: "28px",
+                height: "28px",
+                display: "grid",
+                placeItems: "center",
+                borderRadius: "9px",
+                background: "#dbeafe",
+                fontSize: "13px",
+              }}
+            >
+              ◈
+            </div>
+
+            <div>
+              <strong
+                style={{
+                  display: "block",
+                  color: "#1e3a8a",
+                  fontSize: "10px",
+                }}
+              >
+                ASHA Connect records
+              </strong>
+
+              <span
+                style={{
+                  color: "#64748b",
+                  fontSize: "9px",
+                }}
+              >
+                Securely connected to live beneficiary data
+              </span>
+            </div>
+
+            <span
+              style={{
+                marginLeft: "auto",
+                color: "#16a34a",
+                fontSize: "9px",
+                fontWeight: 800,
+              }}
+            >
+              ● CONNECTED
+            </span>
+          </div>
+
+
+          {/* ==================================================
+              CONVERSATION
+              ================================================== */}
+
+          <div className="asha-ai-conversation">
+
+            {!transcript && !response && (
+              <div
+                style={{
+                  padding: "18px 10px 20px",
+                  textAlign: "center",
+                  color: "#94a3b8",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "22px",
+                    marginBottom: "8px",
+                  }}
+                >
+                  🎙
+                </div>
+
+                <div
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    color: "#475569",
+                  }}
+                >
+                  Start speaking
+                </div>
+
+                <div
+                  style={{
+                    fontSize: "9px",
+                    marginTop: "5px",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  Try: "Kanjira Gurung ka health status batao"
+                </div>
+              </div>
+            )}
+
+
+            {transcript && (
+              <div className="asha-ai-message user">
+
+                <div className="asha-ai-message-label">
+                  You
+                </div>
+
+                <div className="asha-ai-message-bubble">
+                  {transcript}
+                </div>
+
+              </div>
+            )}
+
+
+            {response && (
+              <div className="asha-ai-message assistant">
+
+                <div className="asha-ai-message-label">
+                  ✦ ASHA AI
+                </div>
+
+                <div className="asha-ai-message-bubble">
+                  {response}
+                </div>
+
+              </div>
+            )}
+
+          </div>
+
+
+          {/* ==================================================
+              STATUS / ACTION RECEIPT
+              ================================================== */}
+
+          {status === "listening" && (
+            <div
+              className="asha-ai-receipt"
+              style={{
+                borderColor: "#99f6e4",
+                background: "#f0fdfa",
+                color: "#0f766e",
+              }}
+            >
+              <div className="asha-ai-receipt-icon">
+                🎙
+              </div>
+
+              <div>
+                <strong
+                  style={{
+                    display: "block",
+                    fontSize: "10px",
+                  }}
+                >
+                  Continuous listening active
+                </strong>
+
+                <span
+                  style={{
+                    fontSize: "9px",
+                    opacity: 0.75,
+                  }}
+                >
+                  You don't need to press the button again
+                </span>
+              </div>
+            </div>
+          )}
+
+
+          {error && (
+            <div className="asha-ai-error">
+              <strong
+                style={{
+                  display: "block",
+                  marginBottom: "3px",
+                }}
+              >
+                ASHA AI couldn't complete that
+              </strong>
+
+              <span>{error}</span>
+            </div>
+          )}
+
+
+          {/* ==================================================
+              QUICK EXAMPLES
+              ================================================== */}
+
+          {!transcript && (
+            <div
+              style={{
+                padding: "4px 16px 13px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "8px",
+                  fontWeight: 800,
+                  letterSpacing: ".08em",
+                  textTransform: "uppercase",
+                  color: "#94a3b8",
+                  marginBottom: "7px",
+                }}
+              >
+                You can ask
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "6px",
+                }}
+              >
+                {[
+                  "Health status",
+                  "Appointments",
+                  "Generate report",
+                  "Vaccination",
+                  "Reminders",
+                ].map((item) => (
+                  <span
+                    key={item}
+                    style={{
+                      padding: "6px 8px",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "999px",
+                      background: "#fff",
+                      color: "#64748b",
+                      fontSize: "8px",
+                      fontWeight: 650,
+                    }}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+
+          {/* ==================================================
+              FOOTER
+              ================================================== */}
+
+          <div className="asha-ai-footer">
+
+            <div className="asha-ai-listening-label">
+              {listening
+                ? "Listening continuously"
+                : "Live session active"}
+            </div>
+
+            <button
+              type="button"
+              className="asha-ai-end"
+              onClick={disconnect}
+            >
+              ■ End session
+            </button>
+
+          </div>
+
+        </div>
+      )}
+
+    </div>
+  );
+}
