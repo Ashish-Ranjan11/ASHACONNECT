@@ -1,0 +1,394 @@
+.familyFloatButton {
+  position: fixed;
+  right: 24px;
+  bottom: 210px;
+  z-index: 9998;
+  border: 0;
+  border-radius: 999px;
+  padding: 15px 22px;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: white;
+  font-weight: 950;
+  font-size: 0.95rem;
+  box-shadow: 0 22px 55px rgba(124, 58, 237, 0.34);
+  cursor: pointer;
+}
+
+.familyOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(2, 6, 23, 0.62);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  padding: 26px;
+}
+
+.familyPanel {
+  width: min(1240px, 96vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(124, 58, 237, 0.12), transparent 34%),
+    radial-gradient(circle at 100% 0%, rgba(236, 72, 153, 0.10), transparent 34%),
+    #ffffff;
+  border-radius: 34px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 42px 100px rgba(2, 6, 23, 0.34);
+  padding: 28px;
+}
+
+.familyTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.familyTop p {
+  margin: 0 0 8px;
+  color: #7c3aed;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.familyTop h2 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3.3rem);
+  letter-spacing: -0.06em;
+  color: #0f172a;
+}
+
+.familyTop span {
+  display: inline-block;
+  margin-top: 8px;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.familyClose {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  background: #f1f5f9;
+  color: #0f172a;
+  font-size: 2rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.familyControls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.familyControls select,
+.familyControls button {
+  border: 1px solid #ddd6fe;
+  border-radius: 18px;
+  padding: 15px 16px;
+  font-weight: 900;
+}
+
+.familyControls button {
+  border: 0;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.familyMessage {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 18px;
+  padding: 14px 16px;
+  font-weight: 900;
+  margin-bottom: 16px;
+}
+
+.familyEmpty {
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #64748b;
+}
+
+.familyEmpty span {
+  font-size: 3rem;
+}
+
+.familyEmpty h3 {
+  margin: 12px 0 4px;
+  color: #0f172a;
+  font-size: 1.7rem;
+}
+
+.familyHero {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.familyIdentity {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 28px;
+  padding: 22px;
+}
+
+.familyAvatar {
+  width: 86px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+  border-radius: 26px;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 950;
+}
+
+.familyIdentity h3 {
+  margin: 0 0 7px;
+  font-size: 1.6rem;
+  color: #0f172a;
+}
+
+.familyIdentity p {
+  margin: 4px 0;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.familyRisk {
+  border-radius: 28px;
+  padding: 24px;
+  color: #ffffff;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.familyRisk.low {
+  background: linear-gradient(135deg, #059669, #14b8a6);
+}
+
+.familyRisk.medium {
+  background: linear-gradient(135deg, #f97316, #f59e0b);
+}
+
+.familyRisk.high {
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+}
+
+.familyRisk span {
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.familyRisk b {
+  font-size: 3.6rem;
+  line-height: 1;
+}
+
+.familyStats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.familyStats div {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 18px;
+  text-align: center;
+}
+
+.familyStats b {
+  display: block;
+  color: #7c3aed;
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.familyStats span {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 950;
+}
+
+.familyGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.familyCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 26px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 14px 38px rgba(15, 23, 42, 0.06);
+}
+
+.familyCard h3 {
+  margin: 0 0 14px;
+  color: #0f172a;
+}
+
+.familyCard ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #334155;
+  line-height: 1.7;
+  font-weight: 700;
+}
+
+.familySectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.familySectionHead span {
+  color: #7c3aed;
+  font-weight: 950;
+}
+
+.familyMemberGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.familyMemberCard {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.memberAvatar {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: #ede9fe;
+  color: #7c3aed;
+  font-weight: 950;
+}
+
+.familyMemberCard h4 {
+  margin: 0 0 5px;
+  color: #0f172a;
+}
+
+.familyMemberCard p {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.memberRisk {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 950;
+}
+
+.memberRisk.low {
+  background: #059669;
+}
+
+.memberRisk.medium {
+  background: #f97316;
+}
+
+.memberRisk.high {
+  background: #dc2626;
+}
+
+.familyTimeline {
+  display: grid;
+  gap: 12px;
+}
+
+.familyTimelineItem {
+  display: grid;
+  grid-template-columns: 150px 1fr auto;
+  gap: 14px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+}
+
+.familyTimelineType {
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #f5f3ff;
+  color: #7c3aed;
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-align: center;
+}
+
+.familyTimelineItem p,
+.familyMuted {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.familyTimelineItem time {
+  color: #7c3aed;
+  font-weight: 950;
+}
+
+@media (max-width: 1000px) {
+  .familyHero,
+  .familyGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .familyStats,
+  .familyMemberGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .familyTimelineItem {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .familyStats,
+  .familyMemberGrid,
+  .familyControls {
+    grid-template-columns: 1fr;
+  }
+}

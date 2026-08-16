@@ -1,105 +1,103 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 
 from app.db.mysql import get_db
-from app.deps import get_current_worker, visible_worker_ids, require_roles
-from app.models import AshaWorker, PrimaryHealthCentre
-from app.schemas import AshaWorkerCreate, AshaWorkerOut, LoginRequest, PHCCreate, PHCOut, Token
-from app.security import create_access_token, hash_password, verify_password
+from app.deps import get_current_worker
+from app.models import AshaWorker
+from app.security import (
+    audit_log,
+    create_access_token,
+    hash_password,
+    role_value,
+    verify_password,
+)
 
-router = APIRouter(prefix="/api/auth", tags=["Auth"])
+router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
-def worker_payload(worker: AshaWorker):
+def worker_json(worker: AshaWorker):
     return {
         "worker_id": worker.worker_id,
+        "id": worker.worker_id,
         "name": worker.name,
         "email": worker.email,
-        "role": worker.role,
+        "phone_no": worker.phone_no,
         "village": worker.village,
+        "address": worker.address,
+        "qualification": worker.qualification,
         "phc_id": worker.phc_id,
-        "phc": worker.phc.name if worker.phc else None,
+        "role": role_value(worker.role),
         "sos_id": worker.sos_id,
+        "is_active": worker.is_active,
     }
 
 
-@router.post("/login", response_model=Token)
-def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    worker = db.query(AshaWorker).filter(AshaWorker.email == payload.email).first()
+@router.post("/login")
+def login(payload: dict = Body(...), db: Session = Depends(get_db)):
+    email = str(payload.get("email") or "").strip().lower()
+    password = str(payload.get("password") or "")
 
-    if not worker or not verify_password(payload.password, worker.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="Email and password are required")
 
-    if not worker.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account inactive")
+    worker = db.query(AshaWorker).filter(AshaWorker.email == email).first()
 
-    token = create_access_token(subject=str(worker.worker_id))
+    if not worker:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    if hasattr(worker, "is_active") and not worker.is_active:
+        raise HTTPException(status_code=403, detail="Account is disabled")
+
+    password_ok = verify_password(password, worker.password_hash)
+
+    # Temporary legacy support: if an old demo account stored plain password,
+    # allow login once and immediately upgrade it to hashed password.
+    if not password_ok and password == worker.password_hash:
+        worker.password_hash = hash_password(password)
+        db.commit()
+        password_ok = True
+
+    if not password_ok:
+        audit_log(
+            db,
+            actor_type="staff",
+            actor_id=worker.worker_id,
+            actor_role=role_value(worker.role),
+            action="LOGIN_FAILED",
+            entity_type="AshaWorker",
+            entity_id=worker.worker_id,
+            details=f"Failed login for {email}",
+        )
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    token = create_access_token(
+        {
+            "sub": str(worker.worker_id),
+            "email": worker.email,
+            "role": role_value(worker.role),
+            "account_type": "staff",
+        }
+    )
+
+    audit_log(
+        db,
+        actor_type="staff",
+        actor_id=worker.worker_id,
+        actor_role=role_value(worker.role),
+        action="LOGIN_SUCCESS",
+        entity_type="AshaWorker",
+        entity_id=worker.worker_id,
+        details=f"Staff login for {email}",
+    )
 
     return {
         "access_token": token,
         "token_type": "bearer",
-        "worker": worker_payload(worker),
+        "role": role_value(worker.role),
+        "user": worker_json(worker),
     }
 
 
 @router.get("/me")
 def me(current: AshaWorker = Depends(get_current_worker)):
-    return worker_payload(current)
-
-
-@router.get("/demo-users")
-def demo_users():
-    return [
-        {"role": "ASHA Worker", "email": "asha@example.com", "password": "password123"},
-        {"role": "ASHA Worker 2", "email": "asha2@example.com", "password": "password123"},
-        {"role": "PHC Admin", "email": "phcadmin@example.com", "password": "password123"},
-        {"role": "Supervisor", "email": "supervisor@example.com", "password": "password123"},
-    ]
-
-
-@router.post("/create-phc", response_model=PHCOut)
-def create_phc(
-    payload: PHCCreate,
-    db: Session = Depends(get_db),
-    current: AshaWorker = Depends(require_roles("supervisor")),
-):
-    phc = PrimaryHealthCentre(**payload.model_dump())
-    db.add(phc)
-    db.commit()
-    db.refresh(phc)
-    return phc
-
-
-@router.post("/register-worker", response_model=AshaWorkerOut)
-def register_worker(
-    payload: AshaWorkerCreate,
-    db: Session = Depends(get_db),
-    current: AshaWorker = Depends(require_roles("phc_admin", "supervisor")),
-):
-    existing = db.query(AshaWorker).filter(
-        (AshaWorker.email == payload.email) | (AshaWorker.phone_no == payload.phone_no)
-    ).first()
-
-    if existing:
-        raise HTTPException(status_code=400, detail="Email or phone already registered")
-
-    if current.role == "phc_admin":
-        payload.phc_id = current.phc_id
-
-    data = payload.model_dump(exclude={"password"})
-    data["password_hash"] = hash_password(payload.password)
-
-    worker = AshaWorker(**data)
-    db.add(worker)
-    db.commit()
-    db.refresh(worker)
-    return worker
-
-
-@router.get("/workers", response_model=list[AshaWorkerOut])
-def list_workers(
-    db: Session = Depends(get_db),
-    current: AshaWorker = Depends(require_roles("phc_admin", "supervisor")),
-):
-    query = db.query(AshaWorker).filter(AshaWorker.worker_id.in_(visible_worker_ids(db, current)))
-    return query.order_by(AshaWorker.worker_id.asc()).all()
+    return worker_json(current)

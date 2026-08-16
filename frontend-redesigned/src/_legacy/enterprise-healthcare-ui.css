@@ -1,0 +1,685 @@
+/* =========================================================
+   ASHA CONNECT — Enterprise Healthcare UI Upgrade
+   Premium dashboard, sidebar, cards, forms, tables
+========================================================= */
+
+:root {
+  --enterprise-bg: #eef5f4;
+  --enterprise-surface: #ffffff;
+  --enterprise-surface-soft: #f7fafc;
+  --enterprise-navy: #071326;
+  --enterprise-navy-2: #0b1b33;
+  --enterprise-text: #102033;
+  --enterprise-muted: #627089;
+  --enterprise-border: #e2eaf2;
+  --enterprise-teal: #0f9f7a;
+  --enterprise-teal-dark: #0f766e;
+  --enterprise-blue: #2563eb;
+  --enterprise-red: #dc2626;
+  --enterprise-warning: #f97316;
+  --enterprise-shadow: 0 20px 55px rgba(15, 23, 42, 0.07);
+  --enterprise-shadow-soft: 0 12px 34px rgba(15, 23, 42, 0.055);
+  --enterprise-radius: 28px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at 82% 8%, rgba(15, 159, 122, 0.16), transparent 30%),
+    radial-gradient(circle at 18% 0%, rgba(37, 99, 235, 0.10), transparent 28%),
+    linear-gradient(135deg, #eef5f4 0%, #f8fbfd 45%, #eef7f4 100%) !important;
+  color: var(--enterprise-text);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+/* ------------------------------
+   Main App Shell
+------------------------------ */
+
+.appShell,
+.dashboardShell,
+.layout,
+.app-layout,
+main {
+  color: var(--enterprise-text);
+}
+
+/* ------------------------------
+   Sidebar Premium Upgrade
+------------------------------ */
+
+aside,
+.sidebar,
+.sideBar,
+.appSidebar,
+[class*="sidebar"],
+[class*="Sidebar"] {
+  background:
+    radial-gradient(circle at 20% 12%, rgba(20, 184, 166, 0.28), transparent 24%),
+    linear-gradient(180deg, #071326 0%, #08281f 54%, #071326 100%) !important;
+  color: #ffffff !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 16px 0 50px rgba(7, 19, 38, 0.16) !important;
+}
+
+/* Brand logo block */
+aside > div:first-child,
+.sidebar > div:first-child,
+[class*="sidebar"] > div:first-child {
+  position: relative;
+}
+
+/* Replace rough logo look with premium mark feel */
+aside [class*="logo"],
+aside [class*="Logo"],
+aside [class*="avatar"],
+aside [class*="Avatar"],
+.sidebar [class*="logo"],
+.sidebar [class*="Logo"],
+.sidebar [class*="avatar"],
+.sidebar [class*="Avatar"] {
+  border-radius: 22px !important;
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 1), rgba(34, 197, 94, 1)) !important;
+  box-shadow:
+    0 18px 40px rgba(15, 159, 122, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  font-weight: 950 !important;
+}
+
+/* Sidebar headings */
+aside h1,
+aside h2,
+aside h3,
+aside b,
+.sidebar h1,
+.sidebar h2,
+.sidebar h3,
+.sidebar b {
+  color: #ffffff !important;
+  letter-spacing: -0.045em;
+}
+
+aside p,
+aside span,
+.sidebar p,
+.sidebar span {
+  color: rgba(255, 255, 255, 0.68) !important;
+}
+
+/* Sidebar nav */
+aside nav,
+.sidebar nav,
+[class*="sidebar"] nav {
+  display: grid;
+  gap: 8px;
+}
+
+aside nav button,
+.sidebar nav button,
+[class*="sidebar"] button,
+.navItem,
+.nav-item,
+[class*="navItem"],
+[class*="NavItem"] {
+  border: 1px solid transparent !important;
+  border-radius: 16px !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.01em;
+  min-height: 48px;
+  transition: all 0.18s ease;
+}
+
+aside nav button:hover,
+.sidebar nav button:hover,
+[class*="sidebar"] button:hover,
+.navItem:hover,
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.09) !important;
+  color: #ffffff !important;
+  transform: translateX(2px);
+}
+
+aside nav button.active,
+.sidebar nav button.active,
+.navItem.active,
+.nav-item.active,
+[class*="active"] {
+  background: rgba(255, 255, 255, 0.13) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  color: #ffffff !important;
+  box-shadow: inset 4px 0 0 rgba(20, 184, 166, 0.9);
+}
+
+/* Profile card inside sidebar */
+aside [class*="profile"],
+aside [class*="Profile"],
+aside [class*="worker"],
+aside [class*="Worker"],
+.sidebar [class*="profile"],
+.sidebar [class*="worker"] {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border: 1px solid rgba(255, 255, 255, 0.13) !important;
+  border-radius: 24px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Logout button */
+aside button:last-child,
+.sidebar button:last-child {
+  border-radius: 16px !important;
+}
+
+/* ------------------------------
+   Hero / Page Header Premium
+------------------------------ */
+
+.pageHero,
+.hero,
+.headerHero,
+.dashboardHero,
+[class*="hero"],
+[class*="Hero"] {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(236, 253, 245, 0.92)),
+    #ffffff !important;
+  border: 1px solid rgba(226, 234, 242, 0.96) !important;
+  border-radius: 34px !important;
+  box-shadow: var(--enterprise-shadow) !important;
+  padding: clamp(28px, 4vw, 48px) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.pageHero::after,
+.hero::after,
+.headerHero::after,
+.dashboardHero::after,
+[class*="hero"]::after,
+[class*="Hero"]::after {
+  content: "";
+  position: absolute;
+  right: -80px;
+  top: -120px;
+  width: 280px;
+  height: 280px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(15, 159, 122, 0.18), transparent 64%);
+  pointer-events: none;
+}
+
+.pageHero p:first-child,
+.hero p:first-child,
+.eyebrow,
+[class*="eyebrow"],
+[class*="Eyebrow"] {
+  color: var(--enterprise-teal) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  font-size: 0.78rem !important;
+}
+
+.pageHero h1,
+.hero h1,
+.headerHero h1,
+.dashboardHero h1,
+[class*="hero"] h1,
+[class*="Hero"] h1 {
+  color: var(--enterprise-navy) !important;
+  font-size: clamp(2.4rem, 4.6vw, 5rem) !important;
+  line-height: 0.95 !important;
+  letter-spacing: -0.085em !important;
+  font-weight: 950 !important;
+}
+
+.pageHero p,
+.hero p,
+.headerHero p,
+.dashboardHero p,
+[class*="hero"] p,
+[class*="Hero"] p {
+  color: var(--enterprise-muted) !important;
+  font-weight: 720 !important;
+  line-height: 1.7 !important;
+}
+
+/* ------------------------------
+   Cards / Panels
+------------------------------ */
+
+.panel,
+.dataCard,
+.card,
+.dashboardCard,
+.statCard,
+.metricCard,
+[class*="panel"],
+[class*="Panel"],
+[class*="card"],
+[class*="Card"] {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid var(--enterprise-border) !important;
+  border-radius: var(--enterprise-radius) !important;
+  box-shadow: var(--enterprise-shadow-soft) !important;
+}
+
+.panel:hover,
+.dataCard:hover,
+.card:hover,
+.dashboardCard:hover,
+.statCard:hover,
+.metricCard:hover {
+  box-shadow: 0 24px 65px rgba(15, 23, 42, 0.085) !important;
+}
+
+.sectionHeader,
+.cardHeader,
+.panelHeader,
+[class*="sectionHeader"],
+[class*="Header"] {
+  color: var(--enterprise-navy) !important;
+}
+
+.sectionHeader h2,
+.sectionHeader h3,
+.cardHeader h2,
+.cardHeader h3,
+.panelHeader h2,
+.panelHeader h3 {
+  color: var(--enterprise-navy) !important;
+  letter-spacing: -0.055em;
+  font-weight: 950 !important;
+}
+
+/* Dashboard metric cards */
+.statCard,
+.metricCard,
+[class*="stat"],
+[class*="Stat"],
+[class*="metric"],
+[class*="Metric"] {
+  position: relative;
+  overflow: hidden;
+}
+
+.statCard::after,
+.metricCard::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  background: rgba(15, 159, 122, 0.10);
+}
+
+.statCard b,
+.metricCard b,
+.statCard strong,
+.metricCard strong {
+  color: var(--enterprise-navy) !important;
+  letter-spacing: -0.06em;
+}
+
+/* ------------------------------
+   Forms
+------------------------------ */
+
+form,
+.form {
+  background: rgba(255, 255, 255, 0.94) !important;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid #dbe7f0 !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  color: var(--enterprise-navy) !important;
+  font-weight: 760 !important;
+  min-height: 52px;
+  transition: border 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: rgba(15, 159, 122, 0.7) !important;
+  box-shadow: 0 0 0 5px rgba(15, 159, 122, 0.10) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9aa8ba !important;
+}
+
+label {
+  color: #334155 !important;
+  font-weight: 850 !important;
+}
+
+/* ------------------------------
+   Buttons
+------------------------------ */
+
+button,
+.primaryButton,
+.btn,
+[class*="button"],
+[class*="Button"] {
+  font-weight: 900 !important;
+}
+
+.primaryButton,
+button[type="submit"],
+.btn-primary,
+[class*="primary"] {
+  background: linear-gradient(135deg, var(--enterprise-teal-dark), var(--enterprise-teal)) !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 14px 32px rgba(15, 159, 122, 0.18) !important;
+}
+
+button:hover,
+.primaryButton:hover,
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+/* ------------------------------
+   Tables
+------------------------------ */
+
+.tableWrap,
+[class*="tableWrap"],
+[class*="TableWrap"] {
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid var(--enterprise-border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+table th {
+  background: #eef4f8 !important;
+  color: #334155 !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.09em !important;
+  text-transform: uppercase !important;
+  font-weight: 950 !important;
+  padding: 16px !important;
+}
+
+table td {
+  padding: 16px !important;
+  border-bottom: 1px solid var(--enterprise-border) !important;
+  color: #2d3a4f !important;
+  font-weight: 720 !important;
+}
+
+table tr:hover td {
+  background: #f8fbfc !important;
+}
+
+table td b {
+  color: var(--enterprise-navy) !important;
+}
+
+/* ------------------------------
+   Status / Pills
+------------------------------ */
+
+.pill,
+.badge,
+.tag,
+.pillTag,
+[class*="pill"],
+[class*="badge"],
+[class*="Badge"],
+[class*="tag"],
+[class*="Tag"] {
+  border-radius: 999px !important;
+  padding: 7px 12px !important;
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  font-weight: 950 !important;
+  text-transform: capitalize;
+}
+
+/* ------------------------------
+   Homepage dashboard cleanliness
+------------------------------ */
+
+.dashboardGrid,
+.statsGrid,
+.grid,
+[class*="Grid"] {
+  gap: clamp(14px, 2vw, 22px) !important;
+}
+
+.progress,
+.progressBar,
+[class*="progress"],
+[class*="Progress"] {
+  border-radius: 999px !important;
+  overflow: hidden;
+}
+
+.progress > div,
+.progressBar > div,
+[class*="progress"] > div,
+[class*="Progress"] > div {
+  background: linear-gradient(90deg, var(--enterprise-teal-dark), var(--enterprise-teal)) !important;
+}
+
+/* ------------------------------
+   Remove visual prototype feel
+------------------------------ */
+
+/* Hide old floating widgets if any remain */
+.tasksFloatButton,
+.monitorFloatButton,
+.portfolioFloatButton,
+.familyFloatButton,
+.registerFloatButton {
+  display: none !important;
+}
+
+/* Tone down visible emojis if hardcoded as isolated spans */
+nav span:first-child,
+.sidebar span:first-child,
+aside span:first-child {
+  filter: saturate(0.55);
+}
+
+/* ------------------------------
+   Responsive
+------------------------------ */
+
+@media (max-width: 900px) {
+  .pageHero h1,
+  .hero h1,
+  .headerHero h1,
+  .dashboardHero h1,
+  [class*="hero"] h1,
+  [class*="Hero"] h1 {
+    font-size: clamp(2rem, 10vw, 3.2rem) !important;
+  }
+
+  .panel,
+  .dataCard,
+  .card,
+  .dashboardCard {
+    border-radius: 22px !important;
+  }
+}
+
+/* =========================================================
+   Premium Hospital System Feel — final polish
+========================================================= */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(7, 19, 38, 0.035), transparent 18%, transparent 82%, rgba(15, 159, 122, 0.035));
+  z-index: -1;
+}
+
+/* Big hospital command center top area */
+main > section:first-child,
+main > div:first-child,
+.content > section:first-child,
+.dashboardContent > section:first-child {
+  position: relative;
+}
+
+/* Premium app badge in hero */
+main > section:first-child::before,
+main > div:first-child::before {
+  content: "ASHA CONNECT HEALTHCARE OS";
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  background: rgba(15, 159, 122, 0.10);
+  color: #047857;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+}
+
+/* Sidebar premium brand improvement */
+aside::before,
+.sidebar::before,
+[class*="sidebar"]::before {
+  content: "";
+  display: block;
+  height: 4px;
+  width: 64px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0f9f7a, #22c55e);
+  margin: 0 0 18px;
+}
+
+/* Make old initials logo look like proper product monogram */
+aside div,
+.sidebar div {
+  text-rendering: geometricPrecision;
+}
+
+/* Better dashboard cards hierarchy */
+.dashboardCard h3,
+.statCard h3,
+.metricCard h3,
+.panel h3,
+.dataCard h3 {
+  color: #071326 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.045em;
+}
+
+.dashboardCard p,
+.statCard p,
+.metricCard p,
+.panel p,
+.dataCard p {
+  color: #627089 !important;
+}
+
+/* Form section labels like hospital system */
+form .eyebrow,
+form p:first-child,
+.panel .eyebrow,
+.dataCard .eyebrow {
+  color: #0f9f7a !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase;
+}
+
+/* Premium empty states */
+.emptyState,
+[class*="empty"],
+[class*="Empty"] {
+  border-radius: 24px !important;
+}
+
+/* Tables look like database product */
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+table th:first-child,
+table td:first-child {
+  padding-left: 20px !important;
+}
+
+table th:last-child,
+table td:last-child {
+  padding-right: 20px !important;
+}
+
+/* Dashboard page background spacing */
+main,
+.content,
+.dashboardContent {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(15, 159, 122, 0.10), transparent 34%),
+    transparent !important;
+}
+
+/* Enterprise form layout polish */
+form.panel,
+.panel.form,
+form[class*="form"],
+[class*="Form"] {
+  padding: clamp(22px, 3vw, 34px) !important;
+}
+
+/* Buttons must feel like SaaS */
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Hide browser-default ugly number input arrows in WebKit */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 0.35;
+}

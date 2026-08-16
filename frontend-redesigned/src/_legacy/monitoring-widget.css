@@ -1,0 +1,392 @@
+.monitorFloatButton {
+  position: fixed;
+  right: 24px;
+  bottom: 86px;
+  z-index: 9998;
+  border: 0;
+  border-radius: 999px;
+  padding: 15px 22px;
+  background: linear-gradient(135deg, #1d4ed8, #06b6d4);
+  color: white;
+  font-weight: 950;
+  font-size: 0.95rem;
+  box-shadow: 0 22px 55px rgba(29, 78, 216, 0.34);
+  cursor: pointer;
+}
+
+.monitorOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(2, 6, 23, 0.62);
+  backdrop-filter: blur(10px);
+  display: grid;
+  place-items: center;
+  padding: 26px;
+}
+
+.monitorPanel {
+  width: min(1240px, 96vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.12), transparent 34%),
+    radial-gradient(circle at 100% 0%, rgba(20, 184, 166, 0.10), transparent 34%),
+    #ffffff;
+  border-radius: 34px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 42px 100px rgba(2, 6, 23, 0.34);
+  padding: 28px;
+}
+
+.monitorTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.monitorTop p {
+  margin: 0 0 8px;
+  color: #1d4ed8;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.monitorTop h2 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3.3rem);
+  letter-spacing: -0.06em;
+  color: #0f172a;
+}
+
+.monitorTop span {
+  display: inline-block;
+  margin-top: 8px;
+  color: #64748b;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.monitorClose {
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  background: #f1f5f9;
+  color: #0f172a;
+  font-size: 2rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.monitorActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.monitorActions button {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: #0f172a;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.monitorActions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.monitorMessage {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 18px;
+  padding: 14px 16px;
+  font-weight: 900;
+  margin-bottom: 16px;
+}
+
+.monitorEmpty {
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #64748b;
+}
+
+.monitorEmpty span {
+  font-size: 3rem;
+}
+
+.monitorEmpty h3 {
+  margin: 12px 0 4px;
+  color: #0f172a;
+  font-size: 1.7rem;
+}
+
+.monitorStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.monitorStatsGrid div {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+}
+
+.monitorStatsGrid b {
+  display: block;
+  color: #1d4ed8;
+  font-size: 2.15rem;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.monitorStatsGrid span {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 950;
+}
+
+.monitorStatsGrid .dangerStat b {
+  color: #dc2626;
+}
+
+.monitorStatsGrid .warningStat b {
+  color: #f97316;
+}
+
+.monitorGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.monitorCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 26px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 14px 38px rgba(15, 23, 42, 0.06);
+}
+
+.monitorSectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.monitorSectionHead h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.monitorSectionHead span {
+  color: #1d4ed8;
+  font-weight: 950;
+}
+
+.monitorMuted {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.alertList,
+.riskCaseList {
+  display: grid;
+  gap: 12px;
+}
+
+.smartAlert {
+  padding: 15px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.smartAlert.high {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.smartAlert.medium {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.smartAlert b {
+  display: block;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.smartAlert p {
+  margin: 0;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.riskCase {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.riskCase b {
+  color: #0f172a;
+}
+
+.riskCase p,
+.riskCase small {
+  display: block;
+  margin: 4px 0 0;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.riskBadge {
+  width: 62px;
+  height: 62px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 950;
+  flex: 0 0 auto;
+}
+
+.riskBadge.low {
+  background: #059669;
+}
+
+.riskBadge.medium {
+  background: #f97316;
+}
+
+.riskBadge.high {
+  background: #dc2626;
+}
+
+.monitorTableWrap {
+  overflow-x: auto;
+}
+
+.monitorTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.monitorTable th {
+  background: #f1f5f9;
+  color: #334155;
+  text-align: left;
+  padding: 14px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.monitorTable td {
+  padding: 14px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #334155;
+  font-weight: 700;
+}
+
+.monitorTable td b {
+  display: block;
+  color: #0f172a;
+}
+
+.monitorTable td small {
+  display: block;
+  color: #64748b;
+  text-transform: capitalize;
+}
+
+.dangerPill {
+  display: inline-grid;
+  place-items: center;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-weight: 950;
+}
+
+.villageGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.villageCard {
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 18px;
+  background: #f8fafc;
+}
+
+.villageCard h4 {
+  margin: 0 0 12px;
+  color: #0f172a;
+}
+
+.villageCard div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.villageCard div:last-child {
+  border-bottom: 0;
+}
+
+.villageCard span {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.villageCard b {
+  color: #1d4ed8;
+}
+
+@media (max-width: 1000px) {
+  .monitorStatsGrid,
+  .monitorGrid,
+  .villageGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .monitorStatsGrid,
+  .monitorGrid,
+  .villageGrid {
+    grid-template-columns: 1fr;
+  }
+}
