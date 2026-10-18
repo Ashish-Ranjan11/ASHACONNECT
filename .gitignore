@@ -32,3 +32,30 @@ dist/
 *.db
 *.sqlite3
 *.pem
+
+# Local backups
+*.backup
+*.before-*
+*.pre-*
+*.stt-backup.*
+*.before_*
+
+# Generated healthcare reports and test recordings
+backend/generated_reports/
+voice-service/*.mp3
+
+# Local secrets and databases
+.env
+.env.*
+!.env.example
+*.db
+*.sqlite3
+*.pem
+*.key
+
+# Build artifacts
+**/venv/
+**/.venv/
+**/node_modules/
+**/dist/
+**/__pycache__/
