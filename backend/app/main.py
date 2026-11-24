@@ -36,14 +36,6 @@ app.include_router(monitoring.router)
 app.include_router(health_records.router)
 
 
-# ASHACONNECT_LOCAL_DEV_CORS_FIX
-app.add_middleware(
-    CORSMiddleware,
-    allow_origin_regex=".*",
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 app.include_router(tasks.router)
 app.include_router(family_portfolio.router)
 
