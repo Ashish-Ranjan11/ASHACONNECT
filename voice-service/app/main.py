@@ -67,6 +67,7 @@ async def transcribe(
     language: str = Form("hi")
 ):
 
+    raise HTTPException(status_code=410, detail="Use authenticated Gemini Live streaming")
     suffix = os.path.splitext(
         audio.filename or ".wav"
     )[1]
@@ -98,7 +99,7 @@ async def transcribe(
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
-app.include_router(voice_agent_router)
+# Legacy agent endpoints disabled in production; use authenticated Live socket.
 
 
 # Gemini Live native-audio WebSocket
