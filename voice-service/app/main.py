@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 import tempfile
 
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -23,6 +23,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:3000",
+        os.getenv("FRONTEND_ORIGIN", "http://127.0.0.1:5173"),
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -35,16 +36,7 @@ def get_voice_audio(path: str):
     """
     Serve generated TTS audio to the frontend.
     """
-    audio_path = Path(path)
-
-    if not audio_path.exists():
-        return {"success": False, "error": "Audio file not found"}
-
-    return FileResponse(
-        str(audio_path),
-        media_type="audio/mpeg",
-        filename="asha_response.mp3"
-    )
+    raise HTTPException(status_code=410, detail="Legacy audio download disabled; use authenticated Gemini Live streaming.")
 
 
 @app.get("/")
