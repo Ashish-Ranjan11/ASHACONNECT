@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import httpx
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from google import genai
@@ -317,6 +318,19 @@ async def gemini_live_socket(websocket: WebSocket):
         await websocket.close(code=4401)
         return
 
+    try:
+        async with httpx.AsyncClient(timeout=10) as auth_client:
+            response = await auth_client.get(
+                os.getenv("ASHA_BACKEND_URL", "http://127.0.0.1:8000").rstrip("/") + "/api/auth/me",
+                headers={"Authorization": authorization},
+            )
+        if response.status_code != 200:
+            await websocket.close(code=4401)
+            return
+    except httpx.HTTPError:
+        await websocket.close(code=1011)
+        return
+
     config = {
         "response_modalities": ["AUDIO"],
         "input_audio_transcription": {},
@@ -409,7 +423,6 @@ async def gemini_live_socket(websocket: WebSocket):
 
                             print("\n========== ASHA LIVE TOOL ==========")
                             print("ACTION :", action)
-                            print("PAYLOAD:", payload)
 
                             try:
                                 result = await execute_asha_action(
@@ -418,7 +431,6 @@ async def gemini_live_socket(websocket: WebSocket):
                                     authorization=authorization,
                                 )
 
-                                print("RESULT :", result)
                                 print("====================================\n")
 
                                 response_data = {"ok": True, "result": result}
@@ -432,7 +444,7 @@ async def gemini_live_socket(websocket: WebSocket):
                                 })
 
                             except Exception as exc:
-                                print("ERROR  :", repr(exc))
+                                print("ERROR  :", type(exc).__name__)
                                 print("====================================\n")
 
                                 response_data = {
@@ -468,7 +480,7 @@ async def gemini_live_socket(websocket: WebSocket):
     except WebSocketDisconnect:
         pass
     except Exception as exc:
-        print("ASHA LIVE SOCKET ERROR:", repr(exc))
+        print("ASHA LIVE SOCKET ERROR:", type(exc).__name__)
         try:
             await websocket.send_json({"type": "error", "message": str(exc)})
         except Exception:
